@@ -1,0 +1,111 @@
+/* 🌸 MindEase Stylesheet */
+/* Calming gradient, rounded buttons, soft animations */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(135deg, #f8a1d1, #a890fe, #7bdff2);
+  background-size: 300% 300%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* Smooth moving gradient */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+header {
+  padding: 20px 0;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(5px);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+h1 {
+  font-size: 2.5em;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+nav {
+  margin-top: 10px;
+}
+
+nav a {
+  color: #fff;
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: #ffe1ff;
+  text-decoration: underline;
+}
+
+/* Form container */
+.form-container {
+  margin: 80px auto;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border-radius: 25px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+input {
+  border-radius: 12px;
+  padding: 10px;
+  border: none;
+  width: 80%;
+  margin-bottom: 15px;
+  font-size: 1em;
+  outline: none;
+}
+
+button, .btn {
+  background-color: #fff;
+  color: #a890fe;
+  font-weight: bold;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 25px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+button:hover, .btn:hover {
+  background-color: #a890fe;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(168, 144, 254, 0.3);
+}
+
+/* Flash messages */
+.flashes {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.flashes li {
+  margin: 10px auto;
+  width: 80%;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.success { background-color: #2ecc71; }
+.error { background-color: #e74c3c; }
+.info { background-color: #3498db; }
