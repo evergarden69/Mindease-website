@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="result">
+    <div class="container">
+        <h2>💬 Your Primary Concern: {{ category|capitalize }}</h2>
+        <p>Here are 5 suggested tasks to help you today:</p>
+
+        <ul class="task-list">
+            {% for task in tasks %}
+                <li>{{ task }}</li>
+            {% endfor %}
+        </ul>
+
+        <a href="{{ url_for('client_dashboard', email='anonymous') }}" class="cta-btn">Go to Dashboard</a>
+    </div>
+</section>
+{% endblock %}
+>

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+.result-container {
+    max-width: 700px;
+    margin: 80px auto;
+    text-align: center;
+    padding: 40px;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #f8fbff, #eef4ff);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 1s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result-title {
+    font-size: 2.3em;
+    color: #3f51b5;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.result-icon {
+    font-size: 3.5em;
+    margin: 20px 0;
+}
+
+.result-message {
+    font-size: 1.2em;
+    color: #444;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.task-section {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-top: 25px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 1s ease forwards 0.4s;
+}
+
+.task-section h3 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.task-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.task-section li {
+    background: #f1f4ff;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.back-btn {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 25px;
+    background: #5c6bc0;
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.back-btn:hover {
+    background: #3f51b5;
+}
+</style>
+
+<div class="result-container">
+    {% if result == "depression" %}
+        <div class="result-icon">💙</div>
+        <h1 class="result-title">You may be experiencing Depression</h1>
+        <p class="result-message">It’s okay to not be okay. You're taking the first step by seeking awareness.
+        Remember, healing starts with small acts of self-care and compassion. 💫</p>
+    
+    {% elif result == "anxiety" %}
+        <div class="result-icon">💚</div>
+        <h1 class="result-title">You may be experiencing Anxiety</h1>
+        <p class="result-message">Your mind feels restless, but that’s okay — you’re learning to take control.
+        Let’s breathe, slow down, and find calm together. 🌿</p>
+    
+    {% elif result == "stress" %}
+        <div class="result-icon">💛</div>
+        <h1 class="result-title">You may be experiencing Stress</h1>
+        <p class="result-message">Life feels heavy sometimes, but you’ve got this. Take time to recharge and
+        remember you are stronger than your worries. ☀️</p>
+    
+    {% else %}
+        <div class="result-icon">🌈</div>
+        <h1 class="result-title">You seem to be doing okay!</h1>
+        <p class="result-message">Still, remember that regular reflection keeps your mental well-being in check.
+        Keep growing and shining. 💖</p>
+    {% endif %}
+
+    {% if tasks %}
+    <div class="task-section">
+        <h3>Here are 5 activities to help you:</h3>
+        <ul>
+            {% for task in tasks %}
+            <li>{{ task }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <a href="{{ url_for('home') }}" class="back-btn">Back to Home</a>
+</div>
+
+{% endblock %}

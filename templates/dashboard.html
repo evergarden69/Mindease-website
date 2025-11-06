@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard">
+    <h2>Welcome to your MindEase Space 🌸</h2>
+    <p>Choose a category to start your healing journey:</p>
+    <ul class="tasks">
+        <li><a href="{{ url_for('depression') }}">🌧️ Depression</a></li>
+        <li><a href="{{ url_for('anxiety') }}">🌬️ Anxiety</a></li>
+        <li><a href="{{ url_for('stress') }}">☀️ Stress</a></li>
+    </ul>
+</div>
+{% endblock %}

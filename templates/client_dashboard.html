@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard">
+    <h2>Welcome to MindEase 💕</h2>
+    <p>Here are your self-care tasks for today, <b>{{ email }}</b> 🌸</p>
+
+    <ul class="tasks">
+        {% for task in tasks %}
+            <li>✅ {{ task }}</li>
+        {% endfor %}
+    </ul>
+
+    <p><a href="{{ url_for('home') }}" class="btn">Back to Home</a></p>
+</div>
+{% endblock %}

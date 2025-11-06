@@ -1,8 +1,36 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="form-container">
-    <h2>Welcome to MindEase 💖</h2>
-    <p>Your safe space to manage depression, anxiety, and stress.</p>
-    <a href="{{ url_for('login') }}" class="btn">Log In</a>
-</div>
+<section class="hero">
+    <div class="hero-content">
+        <h2>Welcome to <span>MindEase</span></h2>
+        <p>Your safe space to understand and overcome life’s challenges.</p>
+        <a href="{{ url_for('register') }}" class="cta-btn">Join Now</a>
+    </div>
+</section>
+
+<section class="assessment-section">
+    <h2>Not sure what you’re feeling?</h2>
+    <p>Take our quick 10-question assessment to understand whether you might be experiencing
+       signs of <strong>depression</strong>, <strong>anxiety</strong>, or <strong>stress</strong>.</p>
+    <a href="{{ url_for('assessment') }}" class="cta-btn">Take the Assessment</a>
+</section>
+
+
+<section class="categories">
+    <h2>Explore Our Support Areas</h2>
+    <div class="cards">
+        <a href="{{ url_for('login') }}" class="card depression">
+            <h3>Depression</h3>
+            <p>Find guidance and uplifting activities to ease your mind.</p>
+        </a>
+        <a href="{{ url_for('login') }}" class="card anxiety">
+            <h3>Anxiety</h3>
+            <p>Discover calmness through mindfulness and breathing exercises.</p>
+        </a>
+        <a href="{{ url_for('login') }}" class="card stress">
+            <h3>Stress</h3>
+            <p>Learn ways to balance your emotions and take back your peace.</p>
+        </a>
+    </div>
+</section>
 {% endblock %}
