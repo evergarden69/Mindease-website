@@ -1,311 +1,181 @@
-/* 🌸 MindEase Stylesheet */
-/* Calming gradient, rounded buttons, soft animations */
+/* ====== Font & Base ====== */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
 body {
-  margin: 0;
-  padding: 0;
   font-family: 'Poppins', sans-serif;
-  color: #fff;
-  text-align: center;
-  background: linear-gradient(135deg, #f8a1d1, #a890fe, #7bdff2);
-  background-size: 300% 300%;
-  animation: gradientShift 15s ease infinite;
-}
-
-/* Smooth moving gradient */
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-header {
-  padding: 20px 0;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(5px);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-h1 {
-  font-size: 2.5em;
-  letter-spacing: 2px;
   margin: 0;
+  color: #333;
+  background: linear-gradient(180deg, #d8b4fe, #a5b4fc, #bae6fd);
+  background-image: url("../static/images/healing_brain.png");
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  overflow-x: hidden;
 }
 
-nav {
-  margin-top: 10px;
+/* ====== Typography Colors ====== */
+h1, h2, h3 {
+  color: #4a148c; /* deep violet for contrast */
 }
 
-nav a {
-  color: #fff;
-  margin: 0 15px;
+p {
+  color: #222;
+}
+
+/* ====== Header ====== */
+header {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+header h1 {
+  font-size: 1.8em;
+  color: #5c5edc;
+  margin: 0;
+  font-weight: 700;
+}
+
+header nav a {
+  margin: 0 12px;
   text-decoration: none;
+  color: #333;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
-nav a:hover {
-  color: #ffe1ff;
-  text-decoration: underline;
+header nav a:hover {
+  color: #6a5acd;
 }
 
-/* Form container */
-.form-container {
-  margin: 80px auto;
-  max-width: 500px;
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(10px);
-  border-radius: 25px;
-  padding: 40px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+/* ====== Hero ====== */
+.hero {
+  text-align: center;
+  padding: 80px 20px 40px;
+  color: #333;
 }
 
-input {
-  border-radius: 12px;
-  padding: 10px;
-  border: none;
-  width: 80%;
-  margin-bottom: 15px;
-  font-size: 1em;
-  outline: none;
+.hero-content h2 {
+  font-size: 2.2em;
+  color: #4c4edb;
 }
 
-button, .btn {
-  background-color: #fff;
-  color: #a890fe;
+.hero-content span {
+  color: #6a5acd;
+}
+
+.hero-content p {
+  font-size: 1.1em;
+  margin-top: 10px;
+  color: #555;
+}
+
+/* ====== Assessment Card ====== */
+.assessment {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 40px 0;
+}
+
+.assessment-card {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 40px 60px;
+  border-radius: 20px;
+  max-width: 800px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(180, 150, 255, 0.2);
+  transition: transform 0.4s ease;
+}
+
+.assessment-card:hover {
+  transform: translateY(-5px);
+}
+
+/* ====== Buttons (Unified Style) ====== */
+button, .cta-btn, .assessment-btn {
+  background: linear-gradient(90deg, #f8a1d1, #a890fe, #7bdff2);
+  color: #fff;
   font-weight: bold;
   border: none;
   border-radius: 30px;
-  padding: 10px 25px;
-  margin-top: 10px;
+  padding: 12px 30px;
+  font-size: 1em;
   cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
   display: inline-block;
 }
 
-button:hover, .btn:hover {
-  background-color: #a890fe;
-  color: #fff;
+button:hover, .cta-btn:hover, .assessment-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(168, 144, 254, 0.3);
+  box-shadow: 0 5px 20px rgba(168, 144, 254, 0.4);
 }
 
-/* Flash messages */
-.flashes {
-  list-style: none;
-  padding: 0;
-  margin-top: 20px;
-}
 
-.flashes li {
-  margin: 10px auto;
-  width: 80%;
-  padding: 12px;
-  border-radius: 10px;
-  font-weight: 500;
-}
-
-.success { background-color: #2ecc71; }
-.error { background-color: #e74c3c; }
-.info { background-color: #3498db; }
-
-.dashboard {
-    text-align: center;
-    margin-top: 50px;
-    background-color: #ffe6f9;
-    border-radius: 15px;
-    padding: 30px;
-    width: 60%;
-    margin-left: auto;
-    margin-right: auto;
-    box-shadow: 0px 4px 10px rgba(255, 182, 193, 0.4);
-}
-
-.tasks {
-    list-style-type: none;
-    padding: 0;
-    margin-top: 20px;
-}
-
-.tasks li {
-    background: linear-gradient(90deg, #c9a0dc, #a2c2e2);
-    padding: 10px;
-    border-radius: 8px;
-    color: white;
-    margin-bottom: 10px;
-    font-weight: 500;
-}
-/* 🌼 Home Enhancements */
-.home-container {
-  margin-top: 50px;
+/* ====== Category Section ====== */
+.categories {
   text-align: center;
-  animation: fadeIn 1s ease-in;
+  padding: 60px 20px 100px;
+  color: #333;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+.categories h2 {
+  font-size: 1.8em;
+  margin-bottom: 40px;
+  color: #4c4edb;
 }
 
-.intro h2 {
-  font-size: 2.2em;
-  color: #fff;
-  margin-bottom: 10px;
-}
-
-.brand {
-  background: linear-gradient(90deg, #fff, #ffd6f5, #c3b3ff);
-  -webkit-background-clip: text;
-  color: transparent;
-  font-weight: bold;
-}
-
-.intro p {
-  color: #fff;
-  font-size: 1.2em;
-  margin-bottom: 25px;
-  opacity: 0.9;
-}
-
-.start-btn {
-  background: linear-gradient(90deg, #ffe1ff, #cbb2ff);
-  color: #5e3b9b;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(168, 144, 254, 0.3);
-}
-
-.start-btn:hover {
-  transform: scale(1.05);
-}
-
-/* 🩵 Cards */
-.cards {
+.category-section {
   display: flex;
-  justify-content: center;
-  gap: 30px;
-  flex-wrap: wrap;
-  margin-top: 50px;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 900px;
+  margin: auto;
 }
 
 .card {
-  width: 250px;
-  padding: 25px;
+  background: rgba(255, 255, 255, 0.75);
   border-radius: 20px;
-  text-decoration: none;
-  color: #fff;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  padding: 30px 40px;
+  text-align: left;
+  line-height: 1.7;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.4s ease, background 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .card h3 {
-  margin-bottom: 10px;
   font-size: 1.4em;
+  color: #5c5edc;
+  margin-bottom: 10px;
 }
 
 .card p {
-  font-size: 1em;
-  opacity: 0.9;
+  margin: 8px 0;
+  color: #444;
+}
+/* ===== Force Gradient Button Style ===== */
+.cta-btn, .assessment-btn {
+  background: linear-gradient(90deg, #f8a1d1, #a890fe, #7bdff2) !important;
+  color: #fff !important;
+  border: none;
+  border-radius: 30px;
+  font-weight: 600;
+  padding: 12px 30px;
+  transition: 0.3s ease;
+  text-decoration: none;
 }
 
-/* Different gradients for each category */
-.depression { background: linear-gradient(135deg, #9f8cff, #c7a8ff); }
-.anxiety { background: linear-gradient(135deg, #7bdff2, #b2f7ef); color: #333; }
-.stress { background: linear-gradient(135deg, #ffb3c6, #ffdee9); color: #333; }
-
-/* ✨ Inspirational Quote */
-.quote-section {
-  margin-top: 70px;
-  padding: 30px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  width: 60%;
-  margin-left: auto;
-  margin-right: auto;
-  color: #fff;
-  font-style: italic;
-  font-size: 1.2em;
-}
-.admin-container {
-    margin: 50px auto;
-    width: 90%;
-    max-width: 800px;
-    background: #fff;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.admin-container h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.admin-table th, .admin-table td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: center;
-}
-
-.admin-table th {
-    background: #0077b6;
-    color: white;
-}
-
-.delete-btn {
-    background: #e63946;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 8px;
-    text-decoration: none;
-}
-
-.delete-btn:hover {
-    background: #c1121f;
-}
-
-.assessment-section {
-    text-align: center;
-    margin: 80px auto;
-    padding: 50px;
-    background: linear-gradient(135deg, #f6f8fc, #eaf3ff);
-    border-radius: 20px;
-    max-width: 800px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.assessment-section h2 {
-    color: #333;
-    font-size: 2em;
-    margin-bottom: 15px;
-}
-
-.assessment-section p {
-    color: #555;
-    font-size: 1.1em;
-    margin-bottom: 30px;
-}
-
-.assessment-section .cta-btn {
-    background: #5c6bc0;
-    color: white;
-    padding: 12px 25px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: background 0.3s;
-}
-
-.assessment-section .cta-btn:hover {
-    background: #3949ab;
+.cta-btn:hover, .assessment-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(168, 144, 254, 0.4);
 }

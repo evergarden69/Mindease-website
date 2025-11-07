@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>MindEase</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=3">
 
     <!-- Step 1: Transition styles -->
     <style>
@@ -14,7 +14,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: white;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(5px);
       z-index: 9999;
       opacity: 0;
       pointer-events: none;

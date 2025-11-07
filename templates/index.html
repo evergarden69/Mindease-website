@@ -1,36 +1,54 @@
 {% extends 'base.html' %}
 {% block content %}
 <section class="hero">
-    <div class="hero-content">
-        <h2>Welcome to <span>MindEase</span></h2>
-        <p>Your safe space to understand and overcome life’s challenges.</p>
-        <a href="{{ url_for('register') }}" class="cta-btn">Join Now</a>
-    </div>
+  <div class="hero-content">
+    <h2>Welcome to <span>MindEase</span></h2>
+    <p>Your safe space to understand and overcome life’s challenges.</p>
+    <a href="{{ url_for('register') }}" class="cta-btn">Join Now</a>
+  </div>
 </section>
 
-<section class="assessment-section">
+<section class="assessment">
+  <div class="assessment-card">
     <h2>Not sure what you’re feeling?</h2>
-    <p>Take our quick 10-question assessment to understand whether you might be experiencing
-       signs of <strong>depression</strong>, <strong>anxiety</strong>, or <strong>stress</strong>.</p>
-    <a href="{{ url_for('assessment') }}" class="cta-btn">Take the Assessment</a>
+    <p>
+      Take our quick 10-question assessment to understand whether you might be
+      experiencing signs of <strong>depression, anxiety, or stress</strong>.
+    </p>
+    <a href="{{ url_for('assessment') }}" class="assessment-btn">Take the Assessment</a>
+  </div>
 </section>
-
 
 <section class="categories">
-    <h2>Explore Our Support Areas</h2>
-    <div class="cards">
-        <a href="{{ url_for('login') }}" class="card depression">
-            <h3>Depression</h3>
-            <p>Find guidance and uplifting activities to ease your mind.</p>
-        </a>
-        <a href="{{ url_for('login') }}" class="card anxiety">
-            <h3>Anxiety</h3>
-            <p>Discover calmness through mindfulness and breathing exercises.</p>
-        </a>
-        <a href="{{ url_for('login') }}" class="card stress">
-            <h3>Stress</h3>
-            <p>Learn ways to balance your emotions and take back your peace.</p>
-        </a>
+  <h2>Explore Our Support Areas</h2>
+
+  <div class="category-section">
+    <div class="card depression">
+      <h3>Depression</h3>
+      <p>Depression affects millions worldwide, yet each journey is unique. Understanding it is the first step toward healing.</p>
+      <p>It’s important to remember you’re not alone — many find comfort in seeking help and building small, daily routines.</p>
+      <p>Therapies and support groups are now more accessible globally, making recovery a shared mission.</p>
+      <p>Mindfulness, gratitude, and creative expression are scientifically shown to lift mood and clarity.</p>
+      <p>At MindEase, we believe in small steps — because even one small step is still progress.</p>
     </div>
+
+    <div class="card anxiety">
+      <h3>Anxiety</h3>
+      <p>Anxiety can be overwhelming, but it’s one of the most treatable emotional challenges today.</p>
+      <p>Simple breathing exercises and mindfulness techniques can ease tension and bring calm.</p>
+      <p>Across the world, people are learning to understand their triggers — and manage them with compassion.</p>
+      <p>Therapeutic practices and journaling have proven powerful for reframing anxious thoughts.</p>
+      <p>MindEase helps you build calm into your life, one mindful moment at a time.</p>
+    </div>
+
+    <div class="card stress">
+      <h3>Stress</h3>
+      <p>Stress impacts every aspect of health — physical, emotional, and social — but it can be managed with awareness.</p>
+      <p>Balancing rest, work, and joy restores harmony and resilience in the mind and body.</p>
+      <p>Modern studies show that meditation, nature walks, and community support reduce chronic stress levels.</p>
+      <p>At MindEase, we encourage you to listen to your body and create your own rhythm of recovery.</p>
+      <p>Peace begins when you give yourself permission to pause and breathe.</p>
+    </div>
+  </div>
 </section>
 {% endblock %}
