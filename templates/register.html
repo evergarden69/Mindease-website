@@ -1,24 +1,39 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="form-container">
-    <h2>📝 Register</h2>
-    <form method="POST" action="{{ url_for('register') }}">
-        <input type="email" name="email" placeholder="Enter your email" required><br><br>
-        <input type="password" name="password" placeholder="Create a password" required><br><br>
-        <input type="password" name="confirm" placeholder="Confirm your password" required><br><br>
-        <button type="submit" class="btn">Sign Up</button>
-    </form>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+<div class="register-container">
+    <div class="register-box">
+        <h2>📝 Create Your Account</h2>
+        <form method="POST" action="{{ url_for('register') }}">
+            <input type="email" name="email" placeholder="Enter your email" required>
+            <input type="password" name="password" placeholder="Create a password" required>
+            <input type="password" name="confirm" placeholder="Confirm your password" required>
 
-    <p>Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+            <div class="extra-fields">
+                <input type="number" name="age" placeholder="Enter your age" min="10" max="120">
+                <select name="gender">
+                    <option value="" disabled selected>Select gender</option>
+                    <option value="Male">Male ♂️</option>
+                    <option value="Female">Female ♀️</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn">Sign Up</button>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <p>Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+    </div>
 </div>
+
 {% endblock %}
+
