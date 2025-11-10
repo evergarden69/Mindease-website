@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="register-container">
+<div class="register-container register-page">
+
     <div class="register-box">
-        <h2>📝 Create Your Account</h2>
+        <h2> Create Your Account</h2>
         <form method="POST" action="{{ url_for('register') }}">
             <input type="email" name="email" placeholder="Enter your email" required>
             <input type="password" name="password" placeholder="Create a password" required>
