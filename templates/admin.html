@@ -4,6 +4,17 @@
     <h2>👑 Admin Dashboard</h2>
     <p>Manage registered users for MindEase</p>
 
+    <!-- Search + Filter Controls -->
+    <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Search users...">
+        <select id="roleFilter">
+            <option value="all">All Roles</option>
+            <option value="client">Client</option>
+            <option value="admin">Admin</option>
+        </select>
+    </div>
+
+    <!-- Users Table -->
     <table class="admin-table">
         <thead>
             <tr>
@@ -13,7 +24,7 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="userTable">
             {% for user in users %}
             <tr>
                 <td>{{ user.id }}</td>
@@ -28,4 +39,29 @@
         </tbody>
     </table>
 </div>
+
+<!-- JavaScript for Search and Filter -->
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const roleFilter = document.getElementById('roleFilter');
+    const tableRows = document.querySelectorAll('#userTable tr');
+
+    function filterUsers() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedRole = roleFilter.value.toLowerCase();
+
+        tableRows.forEach(row => {
+            const email = row.cells[1].textContent.toLowerCase();
+            const role = row.cells[2].textContent.toLowerCase();
+
+            const matchesSearch = email.includes(searchTerm);
+            const matchesRole = selectedRole === 'all' || role === selectedRole;
+
+            row.style.display = matchesSearch && matchesRole ? '' : 'none';
+        });
+    }
+
+    searchInput.addEventListener('input', filterUsers);
+    roleFilter.addEventListener('change', filterUsers);
+</script>
 {% endblock %}

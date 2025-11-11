@@ -18,6 +18,10 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(10), default='client')
+    age = db.Column(db.Integer, nullable=True)
+    gender = db.Column(db.String(10), nullable=True)
+    result = db.Column(db.String(20), nullable=True)  # will store depression/anxiety/stress
+
 
 
 # --- Create the database ---

@@ -1,15 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="dashboard">
-    <h2>Welcome to MindEase 💕</h2>
-    <p>Here are your self-care tasks for today, <b>{{ email }}</b> 🌸</p>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h2>👋 Welcome back, {{ session['user_email'].split('@')[0] | capitalize }}!</h2>
+        <p class="role-tag">You’re logged in as: {{ session['user_role'] | capitalize }}</p>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Log out</a>
+    </div>
 
-    <ul class="tasks">
-        {% for task in tasks %}
-            <li>✅ {{ task }}</li>
-        {% endfor %}
-    </ul>
+    <div class="dashboard-content">
+        <h3>🌸 Your self-care tasks for today:</h3>
+        <ul class="tasks">
+            {% for task in tasks %}
+                <li>✅ {{ task }}</li>
+            {% endfor %}
+        </ul>
 
-    <p><a href="{{ url_for('home') }}" class="btn">Back to Home</a></p>
+        <p><a href="{{ url_for('home') }}" class="btn">🏠 Back to Home</a></p>
+    </div>
 </div>
 {% endblock %}

@@ -279,3 +279,199 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
   flex-direction: column;
   gap: 10px;
 }
+.dashboard-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    color: #fff;
+    text-align: center;
+}
+
+.dashboard-header {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.logout-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #ff6b6b;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.logout-btn:hover {
+    background: #ff4444;
+}
+
+.role-tag {
+    color: #ddd;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.tasks {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+}
+
+.tasks li {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 15px;
+    margin: 8px 0;
+    border-radius: 10px;
+    color: #fff;
+}
+.admin-container {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    text-align: center;
+}
+
+.admin-header {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.admin-header h2 {
+    font-size: 2em;
+    color: #e0d7ff;
+}
+
+.admin-header p {
+    color: #ddd;
+    font-size: 1rem;
+}
+
+.logout-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #ff6b6b;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.logout-btn:hover {
+    background: #ff4444;
+}
+
+.admin-table-wrapper {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.admin-table th, .admin-table td {
+    padding: 14px 18px;
+    text-align: center;
+    color: #fff;
+}
+
+.admin-table th {
+    background: rgba(168, 144, 254, 0.3);
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.admin-table tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.delete-btn {
+    background: #ff758c;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.delete-btn:hover {
+    background: #ff4d6d;
+}
+
+.disabled-btn {
+    background: #888;
+    color: #eee;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: not-allowed;
+    font-style: italic;
+}
+
+.no-users {
+    color: #ccc;
+    font-style: italic;
+    margin-top: 20px;
+}
+.search-bar {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.search-bar input {
+    width: 60%;
+    padding: 10px 15px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 1em;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-bar input::placeholder {
+    color: #ddd;
+}
+
+.search-bar input:focus {
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 10px rgba(168, 144, 254, 0.5);
+    border-color: #a890fe;
+}
+.filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+#searchInput, #roleFilter {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+#searchInput {
+    flex: 1;
+}
+
+#roleFilter {
+    width: 150px;
+    background: #fff;
+}
