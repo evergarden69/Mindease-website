@@ -52,27 +52,68 @@ header nav a:hover {
   color: #6a5acd;
 }
 
-/* ====== Hero ====== */
+/* HERO SECTION FIX */
 .hero {
+  position: relative;
+  background: url('/static/images/your-background.jpg') center/cover no-repeat;
+  color: #fff;
   text-align: center;
-  padding: 80px 20px 40px;
-  color: #333;
+  padding: 120px 20px;
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45); /* Dark overlay to improve visibility */
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
 }
 
 .hero-content h2 {
-  font-size: 2.2em;
-  color: #4c4edb;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #fff;
 }
 
 .hero-content span {
-  color: #6a5acd;
+  color: #c7a7ff; /* nice soft purple accent */
 }
 
 .hero-content p {
-  font-size: 1.1em;
-  margin-top: 10px;
-  color: #555;
+  font-size: 1.2rem;
+  margin: 15px 0 30px;
+  color: #f1f1f1;
 }
+
+.cta-btn {
+  background: linear-gradient(90deg, #c084fc, #60a5fa);
+  color: white;
+  padding: 14px 32px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.cta-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.25);
+}
+
 
 /* ====== Assessment Card ====== */
 .assessment {
@@ -474,4 +515,145 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
 #roleFilter {
     width: 150px;
     background: #fff;
+}
+/* 🌷 Admin Dashboard Styling */
+.admin-container {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(6px);
+}
+
+/* 🌸 Filter Bar */
+.filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+#searchInput,
+#roleFilter {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.5px solid #e6b7e2;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+    background-color: #fff7fb;
+    color: #4b3b47;
+}
+
+#searchInput::placeholder {
+    color: #b58ca9;
+}
+
+#searchInput:focus,
+#roleFilter:focus {
+    border-color: #c97bd8;
+    box-shadow: 0 0 6px rgba(201, 123, 216, 0.3);
+}
+
+/* 💜 Table Styling */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.admin-table thead {
+    background: #d9b6ff; /* softer purple */
+    color: #3b1c59; /* dark purple for strong contrast */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 14px 16px;
+    text-align: center;
+    color: #2f2f2f; /* darker text for visibility */
+    font-weight: 500;
+}
+
+.admin-table tbody tr:nth-child(even) {
+    background-color: rgba(245, 235, 255, 0.9);
+}
+
+.admin-table tbody tr:hover {
+    background-color: rgba(225, 210, 255, 0.9);
+}
+
+/* 🗑️ Delete Button */
+.delete-btn {
+    color: #fff;
+    background-color: #d68fc2;
+    padding: 6px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.delete-btn:hover {
+    background-color: #c15ab0;
+}
+/* 🌈 ====== Home Section Visibility Fix (Stronger Overlay) ====== */
+.home-section {
+    position: relative;
+    text-align: center;
+    color: #fff;
+    padding: 140px 20px 100px;
+    background: rgba(0, 0, 0, 0.6); /* fallback dark bg in case overlay fails */
+}
+
+.home-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55); /* darker overlay for better visibility */
+    z-index: 1;
+}
+
+.home-container {
+    position: relative;
+    z-index: 2;
+}
+
+.home-container h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.9); /* bold glow */
+}
+
+.home-container p {
+    color: #f5f5f5;
+    font-size: 1.3rem;
+    margin-top: 15px;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.9);
+}
+
+.cta-btn {
+    margin-top: 30px;
+    padding: 16px 40px;
+    font-size: 1.1rem;
+    border-radius: 35px;
+    background: linear-gradient(90deg, #f8a1d1, #a890fe, #7bdff2);
+    color: #fff;
+    border: none;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    z-index: 2;
+    position: relative;
+}
+
+.cta-btn:hover {
+    transform: scale(1.07);
+    box-shadow: 0 8px 25px rgba(168, 144, 254, 0.6);
 }
