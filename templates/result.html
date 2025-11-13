@@ -1,18 +1,147 @@
 {% extends 'base.html' %}
 {% block content %}
-<section class="result">
-    <div class="container">
-        <h2>💬 Your Primary Concern: {{ category|capitalize }}</h2>
-        <p>Here are 5 suggested tasks to help you today:</p>
 
-        <ul class="task-list">
+<style>
+/* 🌿 ====== Result Page Styling ====== */
+.result-container {
+    max-width: 700px;
+    margin: 80px auto;
+    text-align: center;
+    padding: 40px;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #f3e8ff, #e7f0ff);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 1s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result-title {
+    font-size: 2.3em;
+    color: #5a2ea6;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.result-icon {
+    font-size: 3.5em;
+    margin: 20px 0;
+}
+
+.result-message {
+    font-size: 1.2em;
+    color: #333;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.task-section {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-top: 25px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 1s ease forwards 0.4s;
+}
+
+.task-section h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.task-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.task-section li {
+    background: #ede6ff;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 8px;
+    color: #444;
+    font-weight: 500;
+}
+
+.cta-btn {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 25px;
+    background: linear-gradient(90deg, #a890fe, #7bdff2);
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s ease;
+}
+
+.cta-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(168, 144, 254, 0.3);
+}
+</style>
+
+<div class="result-container">
+    {% if result == "depression" %}
+        <div class="result-icon">💙</div>
+        <h1 class="result-title">You may be experiencing Depression</h1>
+        <p class="result-message">
+            It’s okay to not be okay. You're taking the first step by seeking awareness.
+            Healing starts with small acts of self-care and compassion. 💫
+        </p>
+
+    {% elif result == "anxiety" %}
+        <div class="result-icon">💚</div>
+        <h1 class="result-title">You may be experiencing Anxiety</h1>
+        <p class="result-message">
+            Your mind feels restless, but that’s okay — you’re learning to take control.
+            Let’s breathe, slow down, and find calm together. 🌿
+        </p>
+
+    {% elif result == "stress" %}
+        <div class="result-icon">💛</div>
+        <h1 class="result-title">You may be experiencing Stress</h1>
+        <p class="result-message">
+            Life feels heavy sometimes, but you’ve got this. Take time to recharge and
+            remember you are stronger than your worries. ☀️
+        </p>
+
+    {% else %}
+        <div class="result-icon">🌈</div>
+        <h1 class="result-title">You seem to be doing okay!</h1>
+        <p class="result-message">
+            Regular reflection keeps your mental well-being in check.
+            Keep growing and shining. 💖
+        </p>
+    {% endif %}
+
+    {% if tasks %}
+    <div class="task-section">
+        <h3>Here are 5 activities to help you:</h3>
+        <ul>
             {% for task in tasks %}
-                <li>{{ task }}</li>
+            <li>{{ task }}</li>
             {% endfor %}
         </ul>
-
-        <a href="{{ url_for('client_dashboard', email='anonymous') }}" class="cta-btn">Go to Dashboard</a>
     </div>
-</section>
+    {% endif %}
+
+    <!-- Redirect to register (or dashboard if already logged in) -->
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('client_dashboard', email=current_user.email) }}" class="cta-btn">Go to Dashboard</a>
+    {% else %}
+        <a href="{{ url_for('register') }}" class="cta-btn">Create Account to Continue</a>
+    {% endif %}
+</div>
+
 {% endblock %}
->

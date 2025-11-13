@@ -656,3 +656,138 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
     transform: scale(1.07);
     box-shadow: 0 8px 25px rgba(168, 144, 254, 0.6);
 }
+/* 🌿 ====== Self-Assessment Page Styling ====== */
+.assessment-page {
+  background-image: url("../static/images/healing_brain.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 60px 20px;
+  position: relative;
+}
+
+/* Translucent overlay for visibility */
+.assessment-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7); /* Light overlay for clarity */
+  backdrop-filter: blur(4px);
+  z-index: 0;
+}
+
+/* Container for the form content */
+.assessment-container {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 40px 50px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  color: #333;
+}
+
+/* Titles and texts inside */
+.assessment-container h2 {
+  color: #4a148c;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.assessment-container p {
+  color: #333;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+/* Question formatting */
+.assessment-container label {
+  font-weight: 500;
+  display: block;
+  margin: 15px 0 8px;
+}
+
+.assessment-container input[type="radio"] {
+  margin-right: 8px;
+}
+
+/* Submit button */
+.assessment-container button {
+  display: block;
+  margin: 30px auto 0;
+  background: linear-gradient(90deg, #a890fe, #7bdff2);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 30px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.assessment-container button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(168, 144, 254, 0.4);
+}
+/* 🌈 Add-on to make assessment page more colorful */
+
+.assessment-container {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 10px 25px rgba(168, 144, 254, 0.3);
+  border: 2px solid rgba(168, 144, 254, 0.2);
+}
+
+.assessment-container h2 {
+  background: linear-gradient(90deg, #f8a1d1, #a890fe, #7bdff2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+.question-block {
+  background: linear-gradient(120deg, #f8a1d1cc, #a890fecc, #7bdff2cc);
+  border-radius: 15px;
+  padding: 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.question-block:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(168, 144, 254, 0.4);
+}
+
+.question-block p {
+  color: #fff;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.options label {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  padding: 6px 14px;
+  margin: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.options label:hover {
+  background: #a890fe;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.options input[type="radio"] {
+  accent-color: #a890fe;
+}

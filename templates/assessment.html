@@ -1,38 +1,38 @@
 {% extends 'base.html' %}
 {% block content %}
-<section class="assessment">
-    <div class="container">
-        <h2>🧠 MindEase Self-Assessment</h2>
-        <p>Please answer honestly based on how you've felt lately.</p>
+<section class="assessment-page">
+  <div class="assessment-container">
+    <h2>🧠 MindEase Self-Assessment</h2>
+    <p>Please answer honestly based on how you've felt recently.</p>
 
-        <form method="POST" class="assessment-form">
-            {% set questions = [
-                "I’ve felt little interest or pleasure in doing things.",
-                "I’ve had trouble relaxing.",
-                "I’ve felt down, depressed, or hopeless.",
-                "I’ve felt easily annoyed or irritable.",
-                "I’ve had difficulty sleeping or staying asleep.",
-                "I’ve been feeling tired or having little energy.",
-                "I’ve found it hard to control my worrying.",
-                "I’ve had headaches, tense muscles, or fast heartbeat.",
-                "I’ve been feeling overwhelmed by responsibilities.",
-                "I’ve felt worthless or guilty about things."
-            ] %}
+    <form method="POST" action="{{ url_for('assessment') }}">
+      {% set questions = [
+        "I’ve felt little interest or pleasure in doing things.",
+        "I’ve had trouble relaxing.",
+        "I’ve felt down, depressed, or hopeless.",
+        "I’ve felt easily annoyed or irritable.",
+        "I’ve had difficulty sleeping or staying asleep.",
+        "I’ve been feeling tired or having little energy.",
+        "I’ve found it hard to control my worrying.",
+        "I’ve had headaches, tense muscles, or fast heartbeat.",
+        "I’ve been feeling overwhelmed by responsibilities.",
+        "I’ve felt worthless or guilty about things."
+      ] %}
 
-            {% for q in questions %}
-            <div class="question-block">
-                <p><strong>Q{{ loop.index }}:</strong> {{ q }}</p>
-                <div class="options">
-                    <label><input type="radio" name="q{{ loop.index }}" value="0" required> Never</label>
-                    <label><input type="radio" name="q{{ loop.index }}" value="1"> Sometimes</label>
-                    <label><input type="radio" name="q{{ loop.index }}" value="2"> Often</label>
-                    <label><input type="radio" name="q{{ loop.index }}" value="3"> Always</label>
-                </div>
-            </div>
-            {% endfor %}
+      {% for q in questions %}
+      <div class="question-block">
+        <p><strong>Q{{ loop.index }}:</strong> {{ q }}</p>
+        <div class="options">
+          <label><input type="radio" name="q{{ loop.index }}" value="0" required> Never</label>
+          <label><input type="radio" name="q{{ loop.index }}" value="1"> Sometimes</label>
+          <label><input type="radio" name="q{{ loop.index }}" value="2"> Often</label>
+          <label><input type="radio" name="q{{ loop.index }}" value="3"> Always</label>
+        </div>
+      </div>
+      {% endfor %}
 
-            <button type="submit" class="cta-btn">Submit Assessment</button>
-        </form>
-    </div>
+      <button type="submit" class="cta-btn">Submit Assessment</button>
+    </form>
+  </div>
 </section>
 {% endblock %}
