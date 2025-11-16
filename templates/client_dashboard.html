@@ -1,21 +1,37 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="dashboard-container">
-    <div class="dashboard-header">
-        <h2>👋 Welcome back, {{ session['user_email'].split('@')[0] | capitalize }}!</h2>
-        <p class="role-tag">You’re logged in as: {{ session['user_role'] | capitalize }}</p>
-        <a href="{{ url_for('logout') }}" class="logout-btn">Log out</a>
-    </div>
+  <div class="dashboard-header">
+    <img src="{{ user.avatar }}" alt="avatar" class="avatar" />
+    <h2> Welcome back, {{ user.email.split('@')[0] | capitalize }}!</h2>
+    <p class="role-tag">You're logged in as: {{ user.role | capitalize }}</p>
+    <a href="{{ url_for('logout') }}" class="logout-btn">Log out</a>
+  </div>
 
-    <div class="dashboard-content">
-        <h3>🌸 Your self-care tasks for today:</h3>
-        <ul class="tasks">
-            {% for task in tasks %}
-                <li>✅ {{ task }}</li>
-            {% endfor %}
-        </ul>
-
-        <p><a href="{{ url_for('home') }}" class="btn">🏠 Back to Home</a></p>
+  <div class="progress-wrap">
+    <div class="progress-label">Your progress: <strong>{{ progress }}%</strong></div>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: {{ progress }}%;"></div>
     </div>
+  </div>
+
+  <h3 class="tasks-title">🌸 Your self-care tasks for today</h3>
+
+  <ul class="tasks-list">
+    {% for i, t in enumerate(tasks) %}
+      <li class="task-item {% if t.done %}done{% endif %}">
+        <label>
+          <input type="checkbox" class="task-toggle" data-index="{{ i }}" {% if t.done %}checked{% endif %}>
+          <span class="task-text">{{ t.text }}</span>
+        </label>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <div class="dashboard-actions">
+    <a href="{{ url_for('home') }}" class="cta-btn">🏡 Back to Home</a>
+  </div>
 </div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}
