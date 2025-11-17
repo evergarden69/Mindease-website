@@ -18,15 +18,16 @@
   <h3 class="tasks-title">🌸 Your self-care tasks for today</h3>
 
   <ul class="tasks-list">
-    {% for i, t in enumerate(tasks) %}
-      <li class="task-item {% if t.done %}done{% endif %}">
-        <label>
-          <input type="checkbox" class="task-toggle" data-index="{{ i }}" {% if t.done %}checked{% endif %}>
-          <span class="task-text">{{ t.text }}</span>
-        </label>
-      </li>
-    {% endfor %}
-  </ul>
+  {% for t in tasks %}
+    <li class="task-item {% if t.done %}done{% endif %}">
+      <label>
+        <input type="checkbox" class="task-toggle" data-index="{{ loop.index0 }}" {% if t.done %}checked{% endif %}>
+        <span class="task-text">{{ t.text }}</span>
+      </label>
+    </li>
+  {% endfor %}
+</ul>
+
 
   <div class="dashboard-actions">
     <a href="{{ url_for('home') }}" class="cta-btn">🏡 Back to Home</a>

@@ -12,6 +12,8 @@ app.secret_key = "mindease_secret_key"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mind_ease.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+from flask_migrate import Migrate
+migrate = Migrate(app, db)
 
 
 # --- Database Models ---
@@ -42,11 +44,6 @@ class User(db.Model):
 def url_for_static(path: str):
     # helper to create a relative path string for DB; will be used in templates via /static/...
     return f"/static/{path}"
-
-
-# --- Create the database ---
-with app.app_context():
-    db.create_all()
 
 
 # --- ROUTES ---
