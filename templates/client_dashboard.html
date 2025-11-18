@@ -1,38 +1,77 @@
 {% extends 'base.html' %}
 {% block content %}
+
 <div class="dashboard-container">
+
   <div class="dashboard-header">
-    <img src="{{ user.avatar }}" alt="avatar" class="avatar" />
-    <h2> Welcome back, {{ user.email.split('@')[0] | capitalize }}!</h2>
-    <p class="role-tag">You're logged in as: {{ user.role | capitalize }}</p>
-    <a href="{{ url_for('logout') }}" class="logout-btn">Log out</a>
+      <img src="{{ url_for('static', filename='images/' + (user.avatar or 'default_avatar.png')) }}"
+     alt="avatar" class="avatar" />
+
+      <h2>Welcome back, {{ user.email.split('@')[0] | capitalize }}!</h2>
+      <p class="role-tag">You're logged in as: {{ user.role | capitalize }}</p>
+
+      <a href="{{ url_for('logout') }}" class="logout-btn">Log out</a>
   </div>
 
   <div class="progress-wrap">
-    <div class="progress-label">Your progress: <strong>{{ progress }}%</strong></div>
-    <div class="progress-bar">
-      <div class="progress-fill" style="width: {{ progress }}%;"></div>
-    </div>
+      <div class="progress-label">
+        Your progress: <strong>{{ progress }}%</strong>
+      </div>
+
+      <div class="progress-bar">
+          <div class="progress-fill" style="width: {{ progress }}%;"></div>
+      </div>
   </div>
 
   <h3 class="tasks-title">🌸 Your self-care tasks for today</h3>
 
   <ul class="tasks-list">
-  {% for t in tasks %}
-    <li class="task-item {% if t.done %}done{% endif %}">
-      <label>
-        <input type="checkbox" class="task-toggle" data-index="{{ loop.index0 }}" {% if t.done %}checked{% endif %}>
-        <span class="task-text">{{ t.text }}</span>
-      </label>
-    </li>
-  {% endfor %}
-</ul>
+      {% for t in tasks %}
+      <li class="task-item {% if t.done %}done{% endif %}">
 
+          <label>
+              <input type="checkbox"
+                     class="task-toggle"
+                     data-index="{{ loop.index0 }}"
+                     {% if t.done %}checked{% endif %}>
+              <span class="task-text">{{ t.text }}</span>
+          </label>
+
+          <!-- Reflection box -->
+          <textarea
+            class="reflection-box"
+            id="reflection-{{ loop.index0 }}"
+            placeholder="How did this activity make you feel?"
+            {% if not t.done %}style="display:none;"{% endif %}
+          ></textarea>
+
+      </li>
+      {% endfor %}
+  </ul>
 
   <div class="dashboard-actions">
-    <a href="{{ url_for('home') }}" class="cta-btn">🏡 Back to Home</a>
+      <a href="{{ url_for('home') }}" class="cta-btn">🏡 Back to Home</a>
   </div>
+
 </div>
 
+<script>
+document.querySelectorAll(".task-toggle").forEach((cb) => {
+    cb.addEventListener("change", function () {
+
+        const index = this.getAttribute("data-index");
+        const box = document.getElementById(`reflection-${index}`);
+
+        if (this.checked) {
+            box.style.display = "block";
+        } else {
+            box.style.display = "none";
+            box.value = "";
+        }
+    });
+});
+</script>
+
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
 {% endblock %}

@@ -30,6 +30,7 @@ class User(db.Model):
     # store weekly insights (simple dict)
     weekly_insights = db.Column(db.PickleType, nullable=True)
     avatar = db.Column(db.String(200), nullable=True)  # path to default avatar
+    avatar = db.Column(db.String(200), nullable=False, default='default_avatar.png')
 
     def assign_default_avatar(self):
         # choose default based on gender

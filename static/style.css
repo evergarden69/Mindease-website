@@ -844,3 +844,14 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
 
 /* button */
 .cta-btn { background: linear-gradient(90deg,#f8a1d1,#a890fe,#7bdff2); color: #fff; padding: 10px 22px; border-radius: 10px; text-decoration: none; display:inline-block; }
+
+.reflection-box {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background: #fafafa;
+    resize: vertical;
+    font-size: 14px;
+}
