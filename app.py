@@ -337,6 +337,10 @@ def result(category):
     tasks = task_sets.get(category, [])
     return render_template('result.html', category=category, tasks=tasks)
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
 
 if __name__ == '__main__':
     # ensure debug off in production

@@ -3,10 +3,28 @@
 <div class="dashboard">
     <h2>Welcome to your MindEase Space 🌸</h2>
     <p>Choose a category to start your healing journey:</p>
+
     <ul class="tasks">
         <li><a href="{{ url_for('depression') }}">🌧️ Depression</a></li>
         <li><a href="{{ url_for('anxiety') }}">🌬️ Anxiety</a></li>
         <li><a href="{{ url_for('stress') }}">☀️ Stress</a></li>
     </ul>
+
+    <!-- ⭐ NEW About Section -->
+    <div class="about-box">
+        <h3>📘 About MindEase</h3>
+        <p>
+            MindEase is a supportive mental wellness companion designed to help users
+            understand their emotional state and guide them toward healing.
+            Whether you're dealing with stress, anxiety, or depression, MindEase provides
+            personalized activities, reflections, and progress tracking to help you grow
+            at your own pace.
+        </p>
+        <p>
+            Your journey matters — and with MindEase, you never walk it alone. 🌿💛
+        </p>
+    </div>
 </div>
 {% endblock %}
+
+

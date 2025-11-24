@@ -855,3 +855,69 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
     resize: vertical;
     font-size: 14px;
 }
+.activity-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.activity-item {
+    background: #eef2ff;
+    padding: 14px 20px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    font-size: 17px;
+}
+
+.cta-btn {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 12px 30px;
+    background: linear-gradient(90deg, #7b5bff, #8fd3ff);
+    color: #fff;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 18px;
+}
+.about-box {
+    margin-top: 35px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.about-box h3 {
+    color: #3f51b5;
+    margin-bottom: 10px;
+}
+
+.about-box p {
+    color: #444;
+    line-height: 1.6;
+}
+.about-container {
+    max-width: 800px;
+    margin: 120px auto 40px;
+    padding: 30px 40px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(5px);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    color: #333;
+}
+
+.about-container h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.about-container p {
+    line-height: 1.7;
+    font-size: 1.1rem;
+}

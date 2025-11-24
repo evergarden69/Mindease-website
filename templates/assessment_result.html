@@ -116,11 +116,14 @@
         <h3>Here are 5 activities to help you:</h3>
         <ul>
             {% for task in tasks %}
-            <li>{{ task }}</li>
+            <li>{{ task.text }}</li>
             {% endfor %}
         </ul>
     </div>
     {% endif %}
+
+    <!-- Optional JOIN NOW button -->
+    <a href="{{ url_for('register') }}" class="back-btn" style="background:#7e57c2;">Join Now</a>
 
     <a href="{{ url_for('home') }}" class="back-btn">Back to Home</a>
 </div>
