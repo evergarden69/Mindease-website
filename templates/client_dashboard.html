@@ -1,78 +1,110 @@
-{% set hide_header = True %}
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}Client Dashboard{% endblock %}
+
 {% block content %}
-
 <div class="dashboard-container">
+    <div class="content-box">
+        <div class="avatar-container">
+            <img src="{{ user.avatar }}" alt="User Avatar" class="user-avatar-image">
+        </div>
 
-  <div class="dashboard-header">
-      <img src="{{ url_for('static', filename='images/' + (user.avatar or 'default_avatar.png')) }}"
-     alt="avatar" class="avatar" />
+        <h2 class="welcome-text">Welcome back, {{ user.email.split('@')[0] }}!</h2>
 
-      <h2>Welcome back, {{ user.email.split('@')[0] | capitalize }}!</h2>
-      <p class="role-tag">You're logged in as: {{ user.role | capitalize }}</p>
+        {% if user.last_result %}
+            <p class="focus-area">Your Focus Area: <strong>{{ user.last_result | upper }}</strong></p>
+        {% else %}
+            <p class="focus-area">Please take the <a href="{{ url_for('assessment') }}">assessment</a> to get personalized tasks.</p>
+        {% endif %}
 
-      <a href="{{ url_for('logout') }}" class="logout-btn">Log out</a>
-  </div>
 
-  <div class="progress-wrap">
-      <div class="progress-label">
-        Your progress: <strong>{{ progress }}%</strong>
-      </div>
+        <div class="progress-container">
+            <p>Your daily progress: **{{ progress }}%**</p>
+            <div class="progress-bar-shell">
+                <div class="progress-bar" style="width: {{ progress }}%;"></div>
+            </div>
+        </div>
 
-      <div class="progress-bar">
-          <div class="progress-fill" style="width: {{ progress }}%;"></div>
-      </div>
-  </div>
+        <h3 class="task-heading">🌟 Your Self-Care Tasks for Today</h3>
 
-  <h3 class="tasks-title">🌸 Your self-care tasks for today</h3>
+        <div id="tasks-list" class="tasks-list">
+            {% for task in tasks %}
+            <div class="task-item" data-index="{{ loop.index0 }}">
+                <input
+                    type="checkbox"
+                    id="task-{{ loop.index0 }}"
+                    class="task-checkbox"
+                    {% if task.done %}checked{% endif %}
+                >
+                <label for="task-{{ loop.index0 }}">
+                    <span class="task-category task-category-{{ task.category | lower }}">{{ task.category }}:</span>
 
-  <ul class="tasks-list">
-      {% for t in tasks %}
-      <li class="task-item {% if t.done %}done{% endif %}">
+                    <span class="task-text">{{ task.text | safe }}</span>
+                </label>
+            </div>
+            {% else %}
+            <p class="no-tasks">No tasks assigned yet. Take the assessment!</p>
+            {% endfor %}
+        </div>
 
-          <label>
-              <input type="checkbox"
-                     class="task-toggle"
-                     data-index="{{ loop.index0 }}"
-                     {% if t.done %}checked{% endif %}>
-              <span class="task-text">{{ t.text }}</span>
-          </label>
+        <div class="dashboard-actions">
+            <a href="{{ url_for('assessment') }}" class="btn btn-secondary">Take Assessment</a>
+            <a href="/logout" class="btn btn-secondary">Log out</a>
+        </div>
 
-          <!-- Reflection box -->
-          <textarea
-            class="reflection-box"
-            id="reflection-{{ loop.index0 }}"
-            placeholder="How did this activity make you feel?"
-            {% if not t.done %}style="display:none;"{% endif %}
-          ></textarea>
-
-      </li>
-      {% endfor %}
-  </ul>
-
-  <div class="dashboard-actions">
-      <a href="{{ url_for('home') }}" class="cta-btn">🏡 Back to Home</a>
-  </div>
-
+    </div>
 </div>
 
 <script>
-document.querySelectorAll(".task-toggle").forEach((cb) => {
-    cb.addEventListener("change", function () {
+    document.addEventListener('DOMContentLoaded', () => {
+        const checkboxes = document.querySelectorAll('.task-checkbox');
+        const progressBar = document.querySelector('.progress-bar');
+        const progressText = document.querySelector('.progress-container p');
 
-        const index = this.getAttribute("data-index");
-        const box = document.getElementById(`reflection-${index}`);
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const itemDiv = this.closest('.task-item');
+                const index = itemDiv.dataset.index;
 
-        if (this.checked) {
-            box.style.display = "block";
-        } else {
-            box.style.display = "none";
-            box.value = "";
-        }
+                // Send AJAX request to toggle the task
+                fetch('/toggle_task', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ index: index })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update progress bar
+                        progressBar.style.width = data.progress + '%';
+                        progressText.innerHTML = `Your daily progress: <strong>${data.progress}%</strong>`;
+
+                        // Add visual feedback
+                        if (this.checked) {
+                            itemDiv.classList.add('task-done');
+                        } else {
+                            itemDiv.classList.remove('task-done');
+                        }
+                    } else {
+                        alert("Error updating task.");
+                        this.checked = !this.checked; // Revert checkbox if error
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Network error updating task.");
+                    this.checked = !this.checked; // Revert checkbox if error
+                });
+            });
+
+            // Initial styling for already checked tasks
+            if (checkbox.checked) {
+                checkbox.closest('.task-item').classList.add('task-done');
+            }
+        });
     });
-});
 </script>
-
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 
 {% endblock %}
