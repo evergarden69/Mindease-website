@@ -48,13 +48,14 @@
 </head>
 <body>
 
-    {% if not hide_header %}
+    {# 🚩 UPDATED: Use 'hide_nav' instead of 'hide_header' for clarity, matching the Python logic #}
+    {% if not hide_nav %}
     <header>
         <h1>MindEase</h1>
         <nav>
             <a href="{{ url_for('home') }}">Home</a>
             <a href="{{ url_for('about') }}">About</a>
-            {# 🚩 FIX: Changed 'register' to 'register_info' to match the Flask endpoint #}
+            {# FIX: Changed 'register' to 'register_info' to match the Flask endpoint #}
             <a href="{{ url_for('register_info') }}">Register</a>
             <a href="{{ url_for('login') }}">Login</a>
 

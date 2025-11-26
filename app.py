@@ -4,13 +4,33 @@ import random
 import os
 from datetime import datetime, timedelta, date
 from flask_migrate import Migrate
+import pickle
+
 # --- UPDATED IMPORTS ---
-from forms import RegisterForm, AccountForm  # <-- MUST ADD AccountForm!
-from werkzeug.security import generate_password_hash  # <-- Added for password hashing
+# ProfileSettingsForm must be imported here now
+from forms import RegisterForm, AccountForm, DiscussionForm, ReplyForm, ProfileSettingsForm, PasswordChangeForm
+from werkzeug.security import generate_password_hash, check_password_hash  # CHECK_PASSWORD_HASH IS NOW USED
+# Ensure Pickle is accessible for the 'tasks' field (kept the custom type for safety, but tasks fields are removed)
+from sqlalchemy.types import TypeDecorator, LargeBinary
+
+
+# --- Custom Pickle Type (Kept for compatibility, though task fields are removed) ---
+class PickledDict(TypeDecorator):
+    impl = LargeBinary
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            return pickle.dumps(value)
+        return None
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            return pickle.loads(value)
+        return None
+
 
 app = Flask(__name__)
-# IMPORTANT: Updated secret key configuration for Flask-WTF
-app.config['SECRET_KEY'] = 'your_super_secret_key_that_must_be_changed'  # Replace with a long, random string!
+app.config['SECRET_KEY'] = 'your_super_secret_key_that_must_be_changed'
 
 # --- Database Setup ---
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mind_ease.db'
@@ -18,97 +38,41 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# --- MASTER TASK POOL (unchanged) ---
-MASTER_TASKS = {
-    "depression": {
-        "Mind": [
-            "Write down 3 things you're grateful for today 🌸",
-            "Challenge one negative thought 🧠",
-            "Listen to uplifting music for 15 minutes 🎵"
-        ],
-        "Body": [
-            "Take a gentle walk outdoors for 10 minutes 🚶‍♀️",
-            "Do a full-body stretch 🧘‍♂️",
-            "Prepare a nutritious meal or snack 🍎"
-        ],
-        "Spirit": [
-            "Message someone you trust and have a brief chat 💌",
-            "Spend 10 minutes in sunlight ☀️",
-            "Do a 10-minute guided meditation 🧘‍♀️"
-        ]
-    },
-    "anxiety": {
-        "Mind": [
-            "Practice slow, box breathing for 5 minutes 🌬️",
-            "Identify what you *can* control and what you *cannot* 📝",
-            "Read a book for 20 minutes (not news/social media) 📚"
-        ],
-        "Body": [
-            "Ground yourself using the 5-4-3-2-1 technique 👣",
-            "Tense and relax each muscle group 🧍",
-            "Avoid caffeine or alcohol today ☕"
-        ],
-        "Spirit": [
-            "Declutter a small space (e.g., a drawer or desktop) 🧺",
-            "Try a short art or doodle session 🎨",
-            "Write your worries in a 'worry box' and close it ✍️"
-        ]
-    },
-    "stress": {
-        "Mind": [
-            "Journal 3 small wins you had today ✨",
-            "Plan your top 3 priorities for tomorrow 📅",
-            "Listen to calming nature sounds 🎶"
-        ],
-        "Body": [
-            "Stretch or move for 5 minutes 🧍‍♀️",
-            "Drink a full glass of water and notice the sensation 💧",
-            "Take a 15-minute break from screens 📵"
-        ],
-        "Spirit": [
-            "Engage in a quick, fun hobby 🕹️",
-            "Have a quiet moment just for yourself 🌙",
-            "Light a favorite candle or use aromatherapy 🕯️"
-        ]
-    },
-    "none": {
-        "Mind": ["Write down a positive affirmation for the day 💖"],
-        "Body": ["Take a deep breath and stretch for 2 minutes 🌿"],
-        "Spirit": ["Say 'Hello' to a stranger or check in on a friend 👋"]
-    }
-}
+
+# --- MASTER TASK POOL REMOVED ---
+# (The dictionary MASTER_TASKS has been removed)
 
 
-# --- Database Models ---
+# --- Database Models (Cleaned) ---
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    # Changed password length to accommodate secure hashing (e.g., SHA-256)
+    username = db.Column(db.String(50), unique=True, nullable=True)
     password = db.Column(db.String(256), nullable=True)
     role = db.Column(db.String(10), default='client')
 
-    # These fields are now populated in register_account (Page 2)
+    buddy_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+    # Intake/Demographic Fields
     age = db.Column(db.Integer, nullable=True)
     gender = db.Column(db.String(10), nullable=True)
-
-    # New fields needed for the scheduling/intake form data:
     location = db.Column(db.String(5), nullable=True)
-    dob = db.Column(db.String(10), nullable=True)  # Storing as string MM/DD/YYYY
+    dob = db.Column(db.String(10), nullable=True)
     service_therapy = db.Column(db.Boolean, default=False)
     service_psychiatry = db.Column(db.Boolean, default=False)
     service_substance = db.Column(db.Boolean, default=False)
     service_not_sure = db.Column(db.Boolean, default=False)
 
-    last_result = db.Column(db.String(50), nullable=True)
-    tasks = db.Column(db.PickleType, nullable=True)
-    tasks_generated_on = db.Column(db.Date, nullable=True)
-    weekly_insights = db.Column(db.PickleType, nullable=True)
+    # --- TASK FIELDS REMOVED ---
+    # last_result = db.Column(db.String(50), nullable=True)
+    # tasks = db.Column(PickledDict, nullable=True)
+    # tasks_generated_on = db.Column(db.Date, nullable=True)
+    # weekly_insights = db.Column(PickledDict, nullable=True)
+    # ---------------------------
 
-    # CORRECTED PATH to match your 'static/images' folder structure
     avatar = db.Column(db.String(200), nullable=True, default='/static/images/neutral.png')
 
     def assign_default_avatar(self):
-        # Assigns avatar based on gender using the corrected path
         if self.gender and self.gender.lower().startswith('m'):
             self.avatar = url_for_static('images/male.png')
         elif self.gender and self.gender.lower().startswith('f'):
@@ -117,76 +81,44 @@ class User(db.Model):
             self.avatar = url_for_static('images/neutral.png')
 
 
+# --- Community Models (Unchanged) ---
+class Discussion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    author = db.relationship('User', backref=db.backref('discussions', lazy=True))
+
+    category = db.Column(db.String(50), default='General')
+    replies_count = db.Column(db.Integer, default=0)
+
+
+class Reply(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    discussion_id = db.Column(db.Integer, db.ForeignKey('discussion.id'), nullable=False)
+    discussion = db.relationship('Discussion', backref=db.backref('replies', lazy=True))
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    author = db.relationship('User', backref=db.backref('replies_made', lazy=True))
+
+
 def url_for_static(path: str):
     return f"/static/{path}"
 
 
-# --- HELPER FUNCTIONS (unchanged) ---
-
-def generate_daily_tasks(user_result: str):
-    """
-    Generates a new set of tasks (Mind, Body, Spirit) based on the user's last assessment result.
-    The tasks now include the 'category'.
-    """
-    result_key = user_result if user_result in MASTER_TASKS else "none"
-    task_pool = MASTER_TASKS[result_key]
-
-    new_tasks = []
-
-    for category in ["Mind", "Body", "Spirit"]:
-        if category in task_pool and task_pool[category]:
-            selected_task_text = random.choice(task_pool[category])
-            # ADDED 'category' KEY
-            new_tasks.append({
-                "text": selected_task_text,
-                "done": False,
-                "category": category  # Include the category here
-            })
-
-    return new_tasks
+# --- HELPER FUNCTIONS REMOVED ---
+# (generate_daily_tasks, check_and_reset_tasks, compute_progress have been removed)
 
 
-def check_and_reset_tasks(user: User):
-    """
-    Checks if a new day has passed and resets tasks if needed.
-    """
-    today = datetime.utcnow().date()
-    reset_needed = False
-
-    if not user.tasks:
-        reset_needed = True
-
-    if user.tasks_generated_on and user.tasks_generated_on < today:
-        reset_needed = True
-
-    if reset_needed:
-        # Update Weekly Insights (Accumulation)
-        current_insights = user.weekly_insights or {'week_start': today.isoformat(), 'completed': 0, 'total': 0}
-
-        done_today = sum(1 for t in (user.tasks or []) if t.get('done'))
-        total_today = len(user.tasks or [])
-
-        current_insights['completed'] += done_today
-        current_insights['total'] += total_today
-
-        # Reset task list and generation date
-        user.tasks = generate_daily_tasks(user.last_result)
-        user.tasks_generated_on = today
-        user.weekly_insights = current_insights
-        return True
-
-    return False
-
-
-def compute_progress(tasks):
-    if not tasks:
-        return 0
-    total = len(tasks)
-    done = sum(1 for t in tasks if t.get('done'))
-    return int((done / total) * 100)
-
-
+# ----------------------------------------------------------------------
 # --- ROUTES ---
+# ----------------------------------------------------------------------
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -194,13 +126,15 @@ def home():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    from werkzeug.security import check_password_hash
+
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
 
         user = User.query.filter_by(email=email).first()
-        # NOTE: You should use secure password hashing (like Werkzeug) here in a real app.
-        if user and user.password == password:  # PLACEHOLDER: Should use check_password_hash
+
+        if user and check_password_hash(user.password, password):
             session['user_email'] = user.email
             session['user_role'] = user.role
 
@@ -209,7 +143,7 @@ def login():
             if user.role == 'admin':
                 return redirect(url_for('admin_dashboard'))
             else:
-                return redirect(url_for('client_dashboard', email=user.email))
+                return redirect(url_for('community_dashboard'))
         else:
             flash("Invalid email or password. Please try again.", "error")
             return redirect(url_for('login'))
@@ -217,8 +151,7 @@ def login():
     return render_template('login.html')
 
 
-# --- NEW ROUTE 1: Appointment/Patient Info (Was '/register') ---
-# --- STEP 1: Patient Info ---
+# --- Registration Routes (Modified to clean up task references) ---
 @app.route('/register', methods=['GET', 'POST'])
 def register_info():
     form = RegisterForm()
@@ -228,7 +161,6 @@ def register_info():
             flash("Email already registered. Please log in.", "info")
             return redirect(url_for('login'))
 
-        # Store Step 1 data in session
         session['reg_data'] = {
             'email': email,
             'location': form.location.data,
@@ -239,31 +171,33 @@ def register_info():
             'service_not_sure': form.not_sure.data
         }
         flash("Info saved. Please create your account.", "info")
-        # Redirect to Step 2
         return redirect(url_for('register_account'))
 
     return render_template('register.html', form=form)
 
 
-# --- STEP 2: Account Creation ---
 @app.route('/create-account', methods=['GET', 'POST'])
 def register_account():
     form = AccountForm()
-    # Guard: Must have Step 1 data
     if 'reg_data' not in session:
         flash('Please fill out patient info first.', 'warning')
         return redirect(url_for('register_info'))
 
     if form.validate_on_submit():
-        info = session.pop('reg_data')  # Retrieve & clear session
 
-        # Hash password
+        # Check if username already exists
+        if User.query.filter_by(username=form.username.data).first():
+            flash("That username is already taken. Please choose another.", "warning")
+            return render_template('register_account.html', form=form)
+
+        info = session.pop('reg_data')
         hashed_pw = generate_password_hash(form.password.data)
 
         new_user = User(
             email=info['email'],
             password=hashed_pw,
             role='client',
+            username=form.username.data,
             location=info['location'],
             dob=info['dob'],
             service_therapy=info['service_therapy'],
@@ -272,9 +206,7 @@ def register_account():
             service_not_sure=info['service_not_sure'],
             age=form.age.data,
             gender=form.gender.data,
-            tasks=[],
-            tasks_generated_on=None,
-            weekly_insights={'week_start': datetime.utcnow().isoformat(), 'completed': 0, 'total': 0}
+            # Removed initial task setup parameters here
         )
         new_user.assign_default_avatar()
 
@@ -285,67 +217,246 @@ def register_account():
         return redirect(url_for('login'))
 
     return render_template('register_account.html', form=form)
-@app.route('/client/<email>')
-def client_dashboard(email):
-    # Security check: Ensure the logged-in user matches the dashboard user, or is an admin
-    if session.get('user_email') != email and session.get('user_role') != 'admin':
-        flash("⚠️ Access denied.", "error")
-        return redirect(url_for('home'))
 
-    user = User.query.filter_by(email=email).first()
+
+# ----------------------------------------------------------------------
+# --- COMMUNITY & SETTINGS ROUTES ---
+# ----------------------------------------------------------------------
+
+@app.route('/community')
+def community_dashboard():
+    if 'user_email' not in session:
+        flash("Please log in to view the community.", "error")
+        return redirect(url_for('login'))
+
+    user = User.query.filter_by(email=session['user_email']).first()
     if not user:
         flash("User not found.", "error")
         return redirect(url_for('home'))
 
-    # CHECK AND RESET LOGIC
-    reset_performed = check_and_reset_tasks(user)
-
-    if reset_performed:
-        db.session.commit()
-        if len(user.tasks) > 0:
-            flash("☀️ Your new daily self-care tasks have been loaded!", "info")
-
-    progress = compute_progress(user.tasks)
+    latest_discussions = Discussion.query.order_by(Discussion.created_at.desc()).limit(10).all()
 
     return render_template(
         'client_dashboard.html',
         user=user,
-        tasks=user.tasks,
-        progress=progress
+        discussions=latest_discussions,
+        hide_nav=True
     )
 
 
-@app.route('/toggle_task', methods=['POST'])
-def toggle_task():
-    # Toggle a task done/undone via AJAX.
+@app.route('/start_discussion', methods=['GET', 'POST'])
+def create_discussion():
     if 'user_email' not in session:
-        return jsonify({"error": "not_logged_in"}), 401
+        flash("You must be logged in to start a discussion.", "error")
+        return redirect(url_for('login'))
 
-    index = request.json.get('index')
-    email = session['user_email']
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=session['user_email']).first()
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for('home'))
 
-    if not user or not isinstance(user.tasks, list):
-        return jsonify({"error": "invalid_user"}), 400
+    form = DiscussionForm()
 
-    try:
-        idx = int(index)
-        if idx < 0 or idx >= len(user.tasks):
-            raise IndexError
-    except Exception:
-        return jsonify({"error": "invalid_index"}), 400
+    if form.validate_on_submit():
+        new_discussion = Discussion(
+            title=form.title.data,
+            content=form.content.data,
+            category=form.category.data,
+            user_id=user.id,
+            replies_count=0
+        )
 
-    user.tasks[idx]['done'] = not bool(user.tasks[idx].get('done'))
-    db.session.commit()
+        db.session.add(new_discussion)
+        db.session.commit()
 
-    return jsonify({"success": True, "done": user.tasks[idx]['done'], "progress": compute_progress(user.tasks)})
+        flash("Your discussion has been posted successfully!", "success")
+        return redirect(url_for('community_dashboard'))
+
+    return render_template('create_discussion.html', form=form, user=user, hide_nav=True)
 
 
-# --- Remaining Routes (Unchanged from original) ---
+@app.route('/discussion/<int:discussion_id>', methods=['GET', 'POST'])
+def view_discussion(discussion_id):
+    if 'user_email' not in session:
+        flash("You must be logged in to view discussions.", "error")
+        return redirect(url_for('login'))
+
+    current_user = User.query.filter_by(email=session['user_email']).first()
+    discussion = Discussion.query.get_or_404(discussion_id)
+
+    form = ReplyForm()
+
+    if form.validate_on_submit():
+        if not current_user:
+            flash("Error: User session invalid.", "error")
+            return redirect(url_for('home'))
+
+        new_reply = Reply(
+            content=form.content.data,
+            discussion_id=discussion.id,
+            user_id=current_user.id
+        )
+
+        db.session.add(new_reply)
+
+        discussion.replies_count += 1
+
+        db.session.commit()
+
+        flash("Your reply has been posted successfully!", "success")
+        return redirect(url_for('view_discussion', discussion_id=discussion.id))
+
+    replies = Reply.query.filter_by(discussion_id=discussion.id).order_by(Reply.created_at.asc()).all()
+
+    return render_template('view_discussion.html',
+                           discussion=discussion,
+                           replies=replies,
+                           form=form,
+                           user=current_user,
+                           hide_nav=True)
+
+
+# --- UPDATED PROFILE SETTINGS ROUTE ---
+@app.route('/settings', methods=['GET', 'POST'])
+def profile_settings():
+    if 'user_email' not in session:
+        flash("You must be logged in to view settings.", "error")
+        return redirect(url_for('login'))
+
+    user = User.query.filter_by(email=session['user_email']).first()
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for('home'))
+
+    # 1. Profile Update Form (for username/avatar)
+    profile_form = ProfileSettingsForm(obj=user)
+
+    # 2. Password Change Form
+    password_form = PasswordChangeForm()
+
+    # --- Profile Form Submission Logic (Checks for the specific submit button data) ---
+    if profile_form.validate_on_submit() and profile_form.submit.data:
+        if profile_form.username.data != user.username:
+            if User.query.filter_by(username=profile_form.username.data).first():
+                flash("That username is already taken. Please choose another.", "warning")
+                # Need to pass both forms back to the template
+                return render_template('settings.html', profile_form=profile_form, password_form=password_form,
+                                       user=user)
+
+        user.username = profile_form.username.data
+        user.avatar = profile_form.avatar.data
+
+        db.session.commit()
+        flash("Profile updated successfully! ✨", "success")
+        return redirect(url_for('profile_settings'))
+
+    # --- Password Form Submission Logic (Checks for the specific submit button data) ---
+    if password_form.validate_on_submit() and password_form.submit_password.data:
+        # 1. Check if the current password is correct
+        if not check_password_hash(user.password, password_form.current_password.data):
+            flash("Current password entered is incorrect.", "error")
+            # Pass both forms back to the template
+            return render_template('settings.html', profile_form=profile_form, password_form=password_form, user=user)
+
+        # 2. Hash and update the new password
+        user.password = generate_password_hash(password_form.new_password.data)
+        db.session.commit()
+        flash("Password changed successfully! Please log in again.", "success")
+        return redirect(url_for('logout'))
+
+    # --- Initial GET Request (Pass both forms) ---
+    return render_template('settings.html', profile_form=profile_form, password_form=password_form, user=user,
+                           hide_nav=True)
+
+
+# --- END OF UPDATED PROFILE SETTINGS ROUTE ---
+
+
+# ----------------------------------------------------------------------
+# --- ADMIN & STATIC ROUTES (ASSESSMENT REMOVED) ---
+# ----------------------------------------------------------------------
+
+@app.route('/seed_db')
+def seed_db():
+    # This route is only for testing/development. DO NOT USE IN PRODUCTION.
+
+    # Ensure a test user exists
+    test_user = User.query.filter_by(email='test@client.com').first()
+    if not test_user:
+        test_user = User(
+            email='test@client.com',
+            password=generate_password_hash('password'),
+            role='client',
+            username='TestUser',
+            age=30,
+            gender='M',
+            location='TX',
+            dob='01/01/1990',
+            # Removed last_result field assignment
+        )
+        test_user.assign_default_avatar()
+        db.session.add(test_user)
+        db.session.commit()
+
+    user_id = test_user.id
+
+    if not Discussion.query.first():
+        # Create sample discussions
+        d1 = Discussion(
+            title="What should I do if I think I've been misdiagnosed?",
+            content="I was diagnosed with schizophrenia but I'm learning about BPD and I feel it's the cause of my hallucinations. I personally believe I have 5 or potentially more of the 9 symptoms I didn't really understand all of the criteria.",
+            user_id=user_id,
+            category='Mental health conditions',
+            replies_count=1
+        )
+        d2 = Discussion(
+            title="Endless cycle",
+            content="Hi, it's hard to move on when your mind never lets go of dates and times that had traumatic events involved. I have worked hard to recover only to have those efforts undermined by my own subconscious. I suffer from cPTSD and psychosis and have recently been looking into EMDR therapy.",
+            user_id=user_id,
+            category='Caring for myself and others',
+            replies_count=0
+        )
+        d3 = Discussion(
+            title="Introduce yourself!",
+            content="Welcome to the MindEase Community! Drop a line and tell us about your journey. What brings you here and what are you hoping to find?",
+            user_id=user_id,
+            category='Introduce yourself',
+            replies_count=2
+        )
+        db.session.add_all([d1, d2, d3])
+        db.session.commit()
+
+        # Add replies and update reply counts (d3 needs 2 replies for testing)
+        r1 = Reply(
+            content="I highly recommend getting a second opinion from a specialist if you feel that strongly. It’s important to have clarity for treatment.",
+            discussion_id=d1.id,
+            user_id=user_id
+        )
+        r2 = Reply(
+            content="Hello! I'm here for support with anxiety. Glad to be here.",
+            discussion_id=d3.id,
+            user_id=user_id
+        )
+        r3 = Reply(
+            content="Welcome! You're not alone in this journey.",
+            discussion_id=d3.id,
+            user_id=user_id
+        )
+
+        d3.replies_count = 2
+
+        db.session.add_all([r1, r2, r3])
+        db.session.commit()
+
+        flash("Database seeded with test user and 3 discussions!", "success")
+    else:
+        flash("Database already contains discussions.", "info")
+
+    return redirect(url_for('community_dashboard'))
+
 
 @app.route('/admin')
 def admin_dashboard():
-    # Only admin can access
     if session.get('user_role') != 'admin':
         flash("Access denied. Admins only!", "error")
         return redirect(url_for('home'))
@@ -356,7 +467,6 @@ def admin_dashboard():
 
 @app.route('/delete_user/<int:user_id>')
 def delete_user(user_id):
-    # Only admin can delete users
     if session.get('user_role') != 'admin':
         flash("You are not authorized to perform this action.", "error")
         return redirect(url_for('home'))
@@ -393,42 +503,8 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route('/assessment', methods=['GET', 'POST'])
-def assessment():
-    if request.method == 'POST':
-        score = sum(int(request.form.get(f'q{i}', 0)) for i in range(1, 11))
-
-        if score >= 25:
-            result = "depression"
-        elif 15 <= score < 25:
-            result = "anxiety"
-        elif 10 <= score < 15:
-            result = "stress"
-        else:
-            result = "none"
-
-        tasks = generate_daily_tasks(result)
-
-        if session.get('user_email'):
-            user = User.query.filter_by(email=session['user_email']).first()
-            if user:
-                user.last_result = result
-                user.tasks = tasks
-                user.tasks_generated_on = datetime.utcnow().date()
-                user.weekly_insights = {'week_start': datetime.utcnow().isoformat(), 'completed': 0,
-                                        'total': len(tasks)}
-                db.session.commit()
-
-        return render_template('assessment_result.html', result=result, tasks=tasks)
-
-    return render_template('assessment.html')
-
-
-@app.route('/result/<category>')
-def result(category):
-    tasks = generate_daily_tasks(category)
-
-    return render_template('result.html', category=category, tasks=tasks)
+# --- ASSESSMENT ROUTES REMOVED ---
+# (@app.route('/assessment') and @app.route('/result/<category>') have been removed)
 
 
 @app.route("/about")

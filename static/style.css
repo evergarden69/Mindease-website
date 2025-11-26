@@ -1102,3 +1102,467 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
 .register-box .form-row .form-group:last-child {
     margin-right: 0;
 }
+/* --- Community Dashboard Layout --- */
+.community-page-layout {
+    display: flex;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    gap: 30px;
+}
+
+.main-content-area {
+    flex-grow: 1;
+    max-width: 70%; /* Give main content more space */
+}
+
+.sidebar-area {
+    width: 30%;
+    min-width: 250px; /* Ensure sidebar is readable */
+}
+
+/* --- Community Header (Start Discussion Button) --- */
+.community-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* --- Discussion Item Styling --- */
+.discussion-post-item {
+    display: flex;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.discussion-post-item:last-child {
+    border-bottom: none;
+}
+
+.post-avatar img {
+    /* ** FIX: Constraint the profile photo size ** */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* Makes it circular like the example */
+    object-fit: cover;
+}
+
+.post-details {
+    flex-grow: 1;
+}
+
+.post-details h4 a {
+    color: #333;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.post-excerpt {
+    color: #666;
+    margin: 5px 0;
+    font-size: 0.95em;
+}
+
+.post-meta {
+    font-size: 0.8em;
+    color: #999;
+}
+
+.meta-author, .meta-time, .meta-replies {
+    margin-right: 15px;
+}
+
+.meta-category {
+    font-weight: bold;
+    color: #5d5dff; /* Blue color for category, matching a theme */
+}
+
+/* --- Sidebar Styling --- */
+.category-box, .forums-guidelines {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+}
+
+.category-box h3, .forums-guidelines h3 {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    color: #444;
+}
+
+.category-list {
+    list-style: none;
+    padding: 0;
+}
+
+.category-list li {
+    margin-bottom: 8px;
+}
+
+.category-list li a {
+    text-decoration: none;
+    color: #5d5dff;
+}
+/* 1. HIDE THE TOP NAV BAR ELEMENTS */
+/* Assuming your top navigation is structured like:
+   <nav>
+       <a href="/">MindEase</a>
+       <div class="nav-links">
+           <a href="/home">Home</a>...
+       </div>
+   </nav>
+   If you want to hide the entire nav for this specific page, you'll need a class on the body or the container.
+
+   If you want to hide the whole nav *globally* when the user is logged in, you can do this in the base.html/Jinja logic.
+
+   For now, let's fix the layout stacking:
+*/
+
+/* 2. FIX DASHBOARD STACKING AND BACKGROUND */
+.community-page-layout {
+    /* Use a fixed maximum width for better control */
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    gap: 30px;
+
+    /* Ensure the container is above the background images */
+    position: relative;
+    background-color: white; /* Give the dashboard a solid background */
+    z-index: 10; /* Ensure it layers above the background visuals */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* You must also adjust the main body/content area to ensure the background images don't interfere.
+   If your background is applied to the <body>, you might need to give the .community-page-layout a solid background.
+
+   If the navigation bar is overlapping, you may need to adjust its fixed height.
+*/
+
+/* 3. CATEGORY & FAQ LINK STYLING */
+.category-list li a {
+    text-decoration: none;
+    color: #5d5dff; /* Blue color for links */
+    display: block; /* Makes the whole list item clickable area */
+    padding: 5px 0;
+}
+
+.category-list li a:hover {
+    color: #3333ff; /* Darker blue on hover */
+    text-decoration: underline;
+}
+
+/* Apply similar styling to the "View the guidelines" and "Browse FAQs" links */
+.forums-guidelines a {
+    color: #5d5dff;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.forums-guidelines a:hover {
+    color: #3333ff;
+    text-decoration: underline;
+}
+/* --- SETTINGS PAGE STYLES --- */
+
+/* Container for the page */
+.settings-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Ensures it sits nicely in the viewport */
+    padding: 40px 20px;
+    background: transparent; /* Assuming background is handled by base.html or body */
+}
+
+/* The box that holds the form content */
+.settings-box {
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white box */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+
+.settings-box h2 {
+    color: #4a148c; /* Deep Purple */
+    margin-bottom: 5px;
+}
+
+.settings-box .subtitle {
+    color: #6a5acd; /* Medium purple for subtitle */
+    margin-bottom: 25px;
+    font-size: 1.1em;
+}
+
+/* Style for the current user's avatar */
+.profile-header {
+    margin-bottom: 30px;
+}
+
+.current-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e0f7fa; /* Light blue/teal border */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header h3 {
+    margin-top: 10px;
+    font-size: 1.2em;
+    color: #333;
+}
+
+/* Form group layout */
+.settings-box .form-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+/* Style the submit button */
+.settings-btn {
+    background: linear-gradient(90deg, #6a5acd, #9370db); /* Purple gradient */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.settings-btn:hover {
+    opacity: 0.9;
+    box-shadow: 0 4px 10px rgba(106, 90, 205, 0.5);
+}
+
+.note-text {
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #777;
+}
+
+/* Reusing existing error message style */
+.text-danger.error-message {
+    font-size: 0.9em;
+    color: red;
+    display: block;
+    margin-top: 5px;
+}
+/* --- SETTINGS PAGE STYLES --- */
+
+/* Container for the page */
+.settings-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Ensures it sits nicely in the viewport */
+    padding: 40px 20px;
+    background: transparent; /* Assuming background is handled by base.html or body */
+}
+/* In static/css/style.css, near the .settings-container rules */
+.settings-subsection-title {
+    color: var(--color-secondary); /* Use your app's secondary color */
+    font-size: 1.25em;
+    font-weight: 600;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.separator {
+    border: 0;
+    height: 1px;
+    background-color: #e0e0e0; /* Light gray line */
+    margin: 30px 0;
+}
+/* In static/css/style.css, locate the .settings-actions styles */
+
+.settings-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.logout-btn {
+    flex-grow: 0.5; /* Makes it proportionally smaller */
+    margin-right: 15px; /* Adds space between buttons */
+    /* ... rest of the logout-btn styles ... */
+}
+
+.update-profile-btn {
+    flex-grow: 2; /* Makes it the main action button (4x the size of logout) */
+    /* ... rest of the update-profile-btn styles ... */
+}
+/* The box that holds the form content */
+.settings-box {
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white box */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+
+.settings-box h2 {
+    color: #4a148c; /* Deep Purple */
+    margin-bottom: 5px;
+}
+
+.settings-box .subtitle {
+    color: #6a5acd; /* Medium purple for subtitle */
+    margin-bottom: 25px;
+    font-size: 1.1em;
+}
+
+/* Style for the current user's avatar */
+.profile-header {
+    margin-bottom: 30px;
+}
+
+.current-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e0f7fa; /* Light blue/teal border */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header h3 {
+    margin-top: 10px;
+    font-size: 1.2em;
+    color: #333;
+}
+
+/* Form group layout */
+.settings-box .form-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+/* Style the submit button */
+.settings-btn {
+    background: linear-gradient(90deg, #6a5acd, #9370db); /* Purple gradient */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.settings-btn:hover {
+    opacity: 0.9;
+    box-shadow: 0 4px 10px rgba(106, 90, 205, 0.5);
+}
+
+.note-text {
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #777;
+}
+
+/* Reusing existing error message style */
+.text-danger.error-message {
+    font-size: 0.9em;
+    color: red;
+    display: block;
+    margin-top: 5px;
+
+
+/* =================================================== */
+/* 10. FLASH MESSAGES */
+/* =================================================== */
+.flash-messages {
+    position: fixed;
+    top: 80px; /* Adjust based on header height */
+    right: 20px;
+    z-index: 2000;
+    width: 300px;
+    max-width: 90%;
+}
+
+.flash-success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #c3e6cb;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.1);
+    font-weight: 500;
+}
+
+.flash-error, .flash-warning {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #f5c6cb;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.1);
+    font-weight: 500;
+}
+
+.flash-info {
+    background-color: #cce5ff;
+    color: #004085;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #b8daff;
+    box-shadow: 0 4px 10px rgba(23, 162, 184, 0.1);
+    font-weight: 500;
+
+/* In static/css/style.css, add to the bottom or near the .settings-container section */
+.settings-subsection-title {
+    color: var(--color-secondary);
+    font-size: 1.25em;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Custom utility class for buttons */
+.full-width-btn {
+    width: 100%;
+    margin-top: 15px; /* Add some margin above the button */
+}
+
+.separator {
+    border: 0;
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 30px 0;
+}
+/* In static/css/style.css */
+.meta-reply-link {
+    margin-left: 10px; /* Space it from the replies count */
+    color: #5d5dff; /* Match your link color */
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.meta-reply-link:hover {
+    text-decoration: underline;
+}

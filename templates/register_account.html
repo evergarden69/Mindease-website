@@ -30,6 +30,18 @@
                 {% endfor %}
             </div>
 
+            {# --- NEW: USERNAME FIELD ADDED HERE --- #}
+            <div class="form-group">
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control", placeholder="e.g., MindfulUser123") }}
+                {# Display validation errors for username #}
+                {% for error in form.username.errors %}
+                    <span class="text-danger error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {# ----------------------------------- #}
+
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="age">Your Age</label>

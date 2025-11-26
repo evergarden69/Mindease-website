@@ -1,110 +1,117 @@
 {% extends "base.html" %}
 
-{% block title %}Client Dashboard{% endblock %}
+{% block title %}Community Dashboard{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="content-box">
-        <div class="avatar-container">
-            <img src="{{ user.avatar }}" alt="User Avatar" class="user-avatar-image">
+<div class="community-page-layout">
+
+    <div class="main-content-area">
+
+        {# --- NEW: USER ACTION BOX --- #}
+        <div class="user-action-box mb-4 p-3 shadow-sm rounded">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center;">
+                    {% if user %}
+                        {# Display User Avatar and Username #}
+                        <img src="{{ url_for('static', filename=user.avatar.replace('/static/', '')) }}"
+                             alt="{{ user.username }} avatar"
+                             class="user-dashboard-avatar me-3"
+                             style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #5d5dff;">
+                        <div>
+                            <p class="mb-0" style="font-size: 1.2em; font-weight: bold;">Welcome, {{ user.username | capitalize }}!</p>
+                            <span class="text-muted" style="font-size: 0.9em;">Ready to share your thoughts?</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# Settings and Logout Links #}
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('profile_settings') }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-gear-fill"></i> Settings
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-sm btn-danger">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+        {# --- END NEW: USER ACTION BOX --- #}
+
+
+        <div class="community-header">
+            <h2>Community Activity</h2>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <label for="sort-select">Sorted by:</label>
+                <select id="sort-select" class="form-control" style="width: auto;">
+                    <option>Most recent</option>
+                    <option>Most replies</option>
+                </select>
+
+                {# 🚩 Link 'Start a Discussion' to the future Python route #}
+                <a href="{{ url_for('create_discussion') }}" class="btn btn-primary start-discussion-btn">Start a Discussion</a>
+            </div>
         </div>
 
-        <h2 class="welcome-text">Welcome back, {{ user.email.split('@')[0] }}!</h2>
+        {# Loop through the discussions fetched from app.py #}
+        {% for discussion in discussions %}
+        <div class="discussion-post-item">
+            <div class="post-avatar">
+                {# NOTE: Using 'user.avatar' and 'user.username' is safer and better than using email.split #}
+                <img src="{{ discussion.author.avatar }}" alt="{{ discussion.author.username }} avatar">
+            </div>
+            <div class="post-details">
+                {# 🚩 Link the title to the viewing route #}
+                <h4><a href="{{ url_for('view_discussion', discussion_id=discussion.id) }}">{{ discussion.title }}</a></h4>
+                <p class="post-excerpt">{{ discussion.content | truncate(150, True) }}</p>
 
-        {% if user.last_result %}
-            <p class="focus-area">Your Focus Area: <strong>{{ user.last_result | upper }}</strong></p>
+                <div class="post-meta">
+                    <span class="meta-author">by {{ discussion.author.username | capitalize }}</span>
+                    <span class="meta-time">
+                        Posted in
+                        <span class="meta-category">{{ discussion.category }}</span>
+                        • {{ discussion.created_at.strftime('%H:%M %p') }}
+                    </span>
+                    <span class="meta-replies">{{ discussion.replies_count }} replies</span>
+                    <a href="{{ url_for('view_discussion', discussion_id=discussion.id) }}" class="meta-reply-link">
+                | Reply
+                </a>
+                </div>
+            </div>
+        </div>
         {% else %}
-            <p class="focus-area">Please take the <a href="{{ url_for('assessment') }}">assessment</a> to get personalized tasks.</p>
-        {% endif %}
+        <p class="no-discussions alert alert-info">No discussions found. Run /seed_db or be the first to start one!</p>
+        {% endfor %}
+    </div>
 
+    {# RIGHT SIDEBAR FOR CATEGORIES (unchanged) #}
+    <div class="sidebar-area">
+        <div class="category-box">
+            <h3>Categories</h3>
+            <ul class="category-list">
+                <li><a href="#">Introduce yourself</a></li>
+                <li><a href="#">Mental health conditions</a></li>
+                <li><a href="#">Caring for myself and others</a></li>
+                <li><a href="#">People like me</a></li>
+                </ul>
+        </div>
 
-        <div class="progress-container">
-            <p>Your daily progress: **{{ progress }}%**</p>
-            <div class="progress-bar-shell">
-                <div class="progress-bar" style="width: {{ progress }}%;"></div>
+        <div class="forums-guidelines">
+            <div style="text-align: center; margin-bottom: 10px;">
+                <span style="font-size: 2em; color: #5d5dff;">&#10003;</span>
             </div>
+            <h3>Forums guidelines</h3>
+            <p>Our guidelines keep the Forums a safe place for people to share and learn information.</p>
+            <a href="#" style="color: #5d5dff; font-weight: bold;">View the guidelines</a>
         </div>
 
-        <h3 class="task-heading">🌟 Your Self-Care Tasks for Today</h3>
-
-        <div id="tasks-list" class="tasks-list">
-            {% for task in tasks %}
-            <div class="task-item" data-index="{{ loop.index0 }}">
-                <input
-                    type="checkbox"
-                    id="task-{{ loop.index0 }}"
-                    class="task-checkbox"
-                    {% if task.done %}checked{% endif %}
-                >
-                <label for="task-{{ loop.index0 }}">
-                    <span class="task-category task-category-{{ task.category | lower }}">{{ task.category }}:</span>
-
-                    <span class="task-text">{{ task.text | safe }}</span>
-                </label>
+         <div class="forums-guidelines">
+            <div style="text-align: center; margin-bottom: 10px;">
+                <span style="font-size: 2em; color: #5d5dff;">?</span>
             </div>
-            {% else %}
-            <p class="no-tasks">No tasks assigned yet. Take the assessment!</p>
-            {% endfor %}
+            <h3>FAQ</h3>
+            <p>Need quick answers?</p>
+            <a href="#" style="color: #5d5dff; font-weight: bold;">Browse FAQs</a>
         </div>
-
-        <div class="dashboard-actions">
-            <a href="{{ url_for('assessment') }}" class="btn btn-secondary">Take Assessment</a>
-            <a href="/logout" class="btn btn-secondary">Log out</a>
-        </div>
-
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const checkboxes = document.querySelectorAll('.task-checkbox');
-        const progressBar = document.querySelector('.progress-bar');
-        const progressText = document.querySelector('.progress-container p');
-
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const itemDiv = this.closest('.task-item');
-                const index = itemDiv.dataset.index;
-
-                // Send AJAX request to toggle the task
-                fetch('/toggle_task', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ index: index })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update progress bar
-                        progressBar.style.width = data.progress + '%';
-                        progressText.innerHTML = `Your daily progress: <strong>${data.progress}%</strong>`;
-
-                        // Add visual feedback
-                        if (this.checked) {
-                            itemDiv.classList.add('task-done');
-                        } else {
-                            itemDiv.classList.remove('task-done');
-                        }
-                    } else {
-                        alert("Error updating task.");
-                        this.checked = !this.checked; // Revert checkbox if error
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("Network error updating task.");
-                    this.checked = !this.checked; // Revert checkbox if error
-                });
-            });
-
-            // Initial styling for already checked tasks
-            if (checkbox.checked) {
-                checkbox.closest('.task-item').classList.add('task-done');
-            }
-        });
-    });
-</script>
-
 {% endblock %}

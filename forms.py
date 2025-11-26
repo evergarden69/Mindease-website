@@ -1,9 +1,18 @@
 # forms.py
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, BooleanField, SubmitField, PasswordField, IntegerField
-# --- UPDATED IMPORTS ---
-from wtforms.validators import DataRequired, Email, Length, InputRequired, EqualTo, NumberRange # <-- ADDED NumberRange
+from wtforms import StringField, SelectField, BooleanField, SubmitField, PasswordField, IntegerField, \
+    TextAreaField  # Ensure TextAreaField is imported!
+from wtforms.validators import DataRequired, Email, Length, InputRequired, EqualTo, NumberRange
+
+# --- GLOBAL CHOICES ---
+DISCUSSION_CATEGORIES = [
+    ('Introduce yourself', 'Introduce yourself'),
+    ('Mental health conditions', 'Mental health conditions'),
+    ('Caring for myself and others', 'Caring for myself and others'),
+    ('People like me', 'People like me'),
+    ('General', 'General Discussion'),
+]
 
 
 # --- 1. RegisterForm (for Page 1: Patient Info) ---
@@ -59,6 +68,14 @@ class AccountForm(FlaskForm):
                                                  EqualTo('password', message='Passwords must match.')])
 
     ### Profile Fields ###
+    # ADD NEW USERNAME FIELD
+    username = StringField('Choose a Username',
+                           validators=[
+                               DataRequired(message="Username is required."),
+                               Length(min=3, max=50)
+                           ],
+                           render_kw={"placeholder": "e.g., MindfulUser123"
+                                      })
     age = IntegerField('Your Age',
                        validators=[
                            DataRequired(message="Age is required."),
@@ -71,3 +88,72 @@ class AccountForm(FlaskForm):
                          validators=[DataRequired(message="Please select your gender.")])
 
     submit = SubmitField('Sign Up')
+
+
+# --- 3. DiscussionForm (for Community Posting) ---
+class DiscussionForm(FlaskForm):
+    title = StringField('Discussion Title', validators=[
+        DataRequired(),
+        Length(min=5, max=200)
+    ], render_kw={"placeholder": "A brief, clear title for your post"})
+
+    content = TextAreaField('Your Experience / Question', validators=[
+        DataRequired(),
+        Length(min=20)
+    ], render_kw={"placeholder": "Share your thoughts, questions, or experience..."})
+
+    category = SelectField('Category', choices=DISCUSSION_CATEGORIES, validators=[DataRequired()])
+
+    submit = SubmitField('Post Discussion')
+
+
+# --- 4. ReplyForm (for Discussion Replies) ---
+class ReplyForm(FlaskForm):
+    content = TextAreaField('Post Your Reply', validators=[
+        DataRequired(),
+        Length(min=5)
+    ], render_kw={"placeholder": "Write your reply here..."})
+
+    submit = SubmitField('Post Reply')
+
+
+# --- 5. ProfileSettingsForm ---
+class ProfileSettingsForm(FlaskForm):
+    # Username is required now that we added it to the model
+    username = StringField('Username', validators=[
+        DataRequired(),
+        Length(min=3, max=50, message="Username must be between 3 and 50 characters.")
+    ])
+
+    # You will need to define image choices for the avatar selector
+    AVATAR_CHOICES = [
+        ('/static/images/neutral.png', 'Neutral Icon'),
+        ('/static/images/male.png', 'Male Icon'),
+        ('/static/images/female.png', 'Female Icon'),
+        # Add more if you have them!
+    ]
+
+    avatar = SelectField('Profile Picture', choices=AVATAR_CHOICES)
+
+    submit = SubmitField('Update Profile')
+
+
+# --- 6. NEW PasswordChangeForm ---
+class PasswordChangeForm(FlaskForm):
+    current_password = PasswordField(
+        'Current Password',
+        validators=[DataRequired(message='Please enter your current password.')]
+    )
+
+    new_password = PasswordField(
+        'New Password',
+        validators=[
+            DataRequired(message='Password is required.'),
+            Length(min=10, message='Password must be at least 10 characters long.'),
+            EqualTo('confirm_password', message='New password and confirmation must match.')
+        ]
+    )
+
+    confirm_password = PasswordField('Confirm New Password')
+
+    submit_password = SubmitField('Change Password')

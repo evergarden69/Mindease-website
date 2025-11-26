@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}{{ discussion.title }}{% endblock %}
+
+{% block content %}
+<div class="community-page-layout" style="display: block; max-width: 900px; margin: 40px auto; padding: 40px;">
+    
+    <div class="mb-4">
+        <a href="{{ url_for('community_dashboard') }}" style="text-decoration: none; color: #5d5dff; font-weight: bold;">
+            &larr; Back to Community
+        </a>
+    </div>
+
+    <div class="discussion-view-card" style="background: #f0f4ff; padding: 25px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #d0d8ff;">
+        <div class="post-header" style="border-bottom: 1px solid #d0d8ff; padding-bottom: 15px; margin-bottom: 20px;">
+            <span class="meta-category" style="font-size: 0.9em; font-weight: bold; color: #5d5dff;">{{ discussion.category }}</span>
+            <h1 style="font-size: 1.8em; margin: 5px 0 10px 0;">{{ discussion.title }}</h1>
+            <div class="post-meta" style="font-size: 0.9em; color: #777;">
+                Posted by 
+                <span style="font-weight: bold;">{{ discussion.author.email.split('@')[0] | capitalize }}</span> 
+                on {{ discussion.created_at.strftime('%B %d, %Y at %H:%M %p') }}
+            </div>
+        </div>
+        
+        <div class="post-content" style="line-height: 1.6; color: #333;">
+            <p>{{ discussion.content }}</p>
+        </div>
+    </div>
+    
+    <h2 style="font-size: 1.4em; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+        Replies ({{ discussion.replies_count }})
+    </h2>
+
+    {% for reply in replies %}
+    <div class="reply-item" style="display: flex; gap: 15px; padding: 15px; border-bottom: 1px solid #e0e0e0; background: #fff; border-radius: 6px; margin-bottom: 10px;">
+        <div class="reply-avatar">
+            <img src="{{ reply.author.avatar }}" alt="{{ reply.author.email.split('@')[0] }} avatar" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
+        </div>
+        <div class="reply-details" style="flex-grow: 1;">
+            <div class="reply-meta" style="font-size: 0.85em; color: #444; margin-bottom: 5px;">
+                <span style="font-weight: bold;">{{ reply.author.email.split('@')[0] | capitalize }}</span> 
+                • {{ reply.created_at.strftime('%B %d, %Y at %H:%M %p') }}
+            </div>
+            <p style="font-size: 0.95em; margin: 0; color: #222;">{{ reply.content }}</p>
+        </div>
+    </div>
+    {% else %}
+    <p class="alert alert-info" style="padding: 15px; background: #f0f8ff; border: 1px solid #bce8f1; border-radius: 4px;">Be the first to reply to this discussion!</p>
+    {% endfor %}
+    
+    <div class="reply-form-section" style="margin-top: 40px; padding: 25px; background: #f9f9f9; border-radius: 8px; border: 1px solid #eee;">
+        <h3 style="margin-bottom: 20px; font-size: 1.3em;">Post a Reply</h3>
+        <form method="POST" action="{{ url_for('view_discussion', discussion_id=discussion.id) }}">
+            {{ form.hidden_tag() }} 
+
+            <div class="form-group mb-3">
+                {{ form.content.label(class="form-label") }}
+                {{ form.content(class="form-control", rows="5", placeholder=form.content.render_kw['placeholder']) }}
+                {% for error in form.content.errors %}
+                    <span class="text-danger" style="color: red;">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="text-right">
+                {{ form.submit(class="btn btn-primary", style="background-color: #5d5dff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;") }}
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
