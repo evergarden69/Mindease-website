@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="register-page">
+    <div class="register-box appointment-form-container">
+        <h2>Step 2: Create Your Login Account</h2>
+        <p class="subtitle">Just a few more details to secure your account.</p>
+
+        <form action="{{ url_for('register_account') }}" method="POST">
+            {# 🔑 Include the hidden tag for CSRF #}
+            {{ form.hidden_tag() }} 
+
+            <div class="form-group">
+                <label for="password">Create Password</label>
+                {# UPDATED: Placeholder text reflects new 10-character minimum #}
+                {{ form.password(class="form-control", placeholder="Minimum 10 characters") }}
+                {# Display validation errors for password #}
+                {% for error in form.password.errors %}
+                    <span class="text-danger error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                {{ form.confirm_password(class="form-control", placeholder="Confirm your password") }}
+                {# Display validation errors for confirm_password #}
+                {% for error in form.confirm_password.errors %}
+                    <span class="text-danger error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="age">Your Age</label>
+                    {{ form.age(class="form-control", placeholder="Enter your age") }}
+                    {# Display validation errors for age #}
+                    {% for error in form.age.errors %}
+                        <span class="text-danger error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="gender">Your Gender</label>
+                    {# FIX: Added style for max-width to fix the long box appearance #}
+                    {{ form.gender(class="form-control", style="max-width: 150px;") }}
+                    {# Display validation errors for gender #}
+                    {% for error in form.gender.errors %}
+                        <span class="text-danger error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# ➡️ Use the submit field defined in forms.py #}
+            {{ form.submit(class="appointment-btn") }}
+        </form>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <p class="returning-text">You are creating an account to save your appointment details.</p>
+    </div>
+</div>
+
+{% endblock %}

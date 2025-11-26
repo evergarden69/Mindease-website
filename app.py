@@ -4,19 +4,21 @@ import random
 import os
 from datetime import datetime, timedelta, date
 from flask_migrate import Migrate
+# --- UPDATED IMPORTS ---
+from forms import RegisterForm, AccountForm  # <-- MUST ADD AccountForm!
+from werkzeug.security import generate_password_hash  # <-- Added for password hashing
 
 app = Flask(__name__)
-app.secret_key = "mindease_secret_key"
+# IMPORTANT: Updated secret key configuration for Flask-WTF
+app.config['SECRET_KEY'] = 'your_super_secret_key_that_must_be_changed'  # Replace with a long, random string!
 
 # --- Database Setup ---
-# NOTE: Using a relative path for the DB, it may be created in an 'instance' folder
-# depending on your Flask configuration, which is fine.
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mind_ease.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# --- MASTER TASK POOL ---
+# --- MASTER TASK POOL (unchanged) ---
 MASTER_TASKS = {
     "depression": {
         "Mind": [
@@ -81,10 +83,22 @@ MASTER_TASKS = {
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+    # Changed password length to accommodate secure hashing (e.g., SHA-256)
+    password = db.Column(db.String(256), nullable=True)
     role = db.Column(db.String(10), default='client')
+
+    # These fields are now populated in register_account (Page 2)
     age = db.Column(db.Integer, nullable=True)
     gender = db.Column(db.String(10), nullable=True)
+
+    # New fields needed for the scheduling/intake form data:
+    location = db.Column(db.String(5), nullable=True)
+    dob = db.Column(db.String(10), nullable=True)  # Storing as string MM/DD/YYYY
+    service_therapy = db.Column(db.Boolean, default=False)
+    service_psychiatry = db.Column(db.Boolean, default=False)
+    service_substance = db.Column(db.Boolean, default=False)
+    service_not_sure = db.Column(db.Boolean, default=False)
+
     last_result = db.Column(db.String(50), nullable=True)
     tasks = db.Column(db.PickleType, nullable=True)
     tasks_generated_on = db.Column(db.Date, nullable=True)
@@ -107,7 +121,7 @@ def url_for_static(path: str):
     return f"/static/{path}"
 
 
-# --- HELPER FUNCTIONS ---
+# --- HELPER FUNCTIONS (unchanged) ---
 
 def generate_daily_tasks(user_result: str):
     """
@@ -185,64 +199,92 @@ def login():
         password = request.form.get('password')
 
         user = User.query.filter_by(email=email).first()
-        if user and user.password == password:
+        # NOTE: You should use secure password hashing (like Werkzeug) here in a real app.
+        if user and user.password == password:  # PLACEHOLDER: Should use check_password_hash
             session['user_email'] = user.email
             session['user_role'] = user.role
 
-            flash(f"✅ Welcome back, {user.role.capitalize()}!", "success")
+            flash(f"Welcome back, {user.role.capitalize()}!", "success")
 
             if user.role == 'admin':
                 return redirect(url_for('admin_dashboard'))
             else:
                 return redirect(url_for('client_dashboard', email=user.email))
         else:
-            flash("❌ Invalid email or password. Please try again.", "error")
+            flash("Invalid email or password. Please try again.", "error")
             return redirect(url_for('login'))
 
     return render_template('login.html')
 
 
+# --- NEW ROUTE 1: Appointment/Patient Info (Was '/register') ---
+# --- STEP 1: Patient Info ---
 @app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        confirm = request.form.get('confirm')
-        age = request.form.get('age')
-        gender = request.form.get('gender')
-
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            flash("⚠️ Email already registered. Please log in.", "info")
+def register_info():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        if User.query.filter_by(email=email).first():
+            flash("Email already registered. Please log in.", "info")
             return redirect(url_for('login'))
 
-        new_user = User(email=email, password=password, role='client')
+        # Store Step 1 data in session
+        session['reg_data'] = {
+            'email': email,
+            'location': form.location.data,
+            'dob': form.dob.data,
+            'service_therapy': form.therapy_services.data,
+            'service_psychiatry': form.psychiatry_management.data,
+            'service_substance': form.substance_counseling.data,
+            'service_not_sure': form.not_sure.data
+        }
+        flash("Info saved. Please create your account.", "info")
+        # Redirect to Step 2
+        return redirect(url_for('register_account'))
 
-        if age:
-            try:
-                new_user.age = int(age)
-            except ValueError:
-                new_user.age = None
-        if gender:
-            new_user.gender = gender
+    return render_template('register.html', form=form)
 
-        # Assign default avatar based on gender (using corrected path)
+
+# --- STEP 2: Account Creation ---
+@app.route('/create-account', methods=['GET', 'POST'])
+def register_account():
+    form = AccountForm()
+    # Guard: Must have Step 1 data
+    if 'reg_data' not in session:
+        flash('Please fill out patient info first.', 'warning')
+        return redirect(url_for('register_info'))
+
+    if form.validate_on_submit():
+        info = session.pop('reg_data')  # Retrieve & clear session
+
+        # Hash password
+        hashed_pw = generate_password_hash(form.password.data)
+
+        new_user = User(
+            email=info['email'],
+            password=hashed_pw,
+            role='client',
+            location=info['location'],
+            dob=info['dob'],
+            service_therapy=info['service_therapy'],
+            service_psychiatry=info['service_psychiatry'],
+            service_substance=info['service_substance'],
+            service_not_sure=info['service_not_sure'],
+            age=form.age.data,
+            gender=form.gender.data,
+            tasks=[],
+            tasks_generated_on=None,
+            weekly_insights={'week_start': datetime.utcnow().isoformat(), 'completed': 0, 'total': 0}
+        )
         new_user.assign_default_avatar()
-
-        # Initialize
-        new_user.tasks = []
-        new_user.tasks_generated_on = None
-        new_user.weekly_insights = {'week_start': datetime.utcnow().isoformat(), 'completed': 0, 'total': 0}
 
         db.session.add(new_user)
         db.session.commit()
 
-        flash("✅ Registration successful! You can now log in.", "success")
+        flash("Account created! Please log in.", "success")
         return redirect(url_for('login'))
 
-    return render_template('register.html')
-
-
+    return render_template('register_account.html', form=form)
 @app.route('/client/<email>')
 def client_dashboard(email):
     # Security check: Ensure the logged-in user matches the dashboard user, or is an admin
@@ -299,13 +341,13 @@ def toggle_task():
     return jsonify({"success": True, "done": user.tasks[idx]['done'], "progress": compute_progress(user.tasks)})
 
 
-# --- Remaining Routes (Unchanged) ---
+# --- Remaining Routes (Unchanged from original) ---
 
 @app.route('/admin')
 def admin_dashboard():
     # Only admin can access
     if session.get('user_role') != 'admin':
-        flash("⚠️ Access denied. Admins only!", "error")
+        flash("Access denied. Admins only!", "error")
         return redirect(url_for('home'))
 
     users = User.query.all()
@@ -316,16 +358,16 @@ def admin_dashboard():
 def delete_user(user_id):
     # Only admin can delete users
     if session.get('user_role') != 'admin':
-        flash("⚠️ You are not authorized to perform this action.", "error")
+        flash("You are not authorized to perform this action.", "error")
         return redirect(url_for('home'))
 
     user = User.query.get(user_id)
     if user:
         db.session.delete(user)
         db.session.commit()
-        flash("🗑️ User deleted successfully.", "success")
+        flash("User deleted successfully.", "success")
     else:
-        flash("❌ User not found.", "error")
+        flash(" User not found.", "error")
     return redirect(url_for('admin_dashboard'))
 
 
@@ -395,4 +437,7 @@ def about():
 
 
 if __name__ == '__main__':
+    with app.app_context():
+        # This will ensure the database and tables exist when the app starts.
+        db.create_all()
     app.run(debug=True)

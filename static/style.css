@@ -4,7 +4,7 @@ body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
   color: #333;
-  background: linear-gradient(180deg, #d8b4fe, #a5b4fc, #bae6fd);
+  /* Removed background gradient to favor the fixed image */
   background-image: url("../static/images/healing_brain.png");
   background-size: cover;
   background-attachment: fixed;
@@ -218,7 +218,8 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 5px 20px rgba(168, 144, 254, 0.4);
 }
-/* Centering the Register & Login Forms */
+
+/* Centering the Register & Login Forms (Base styles) */
 .register-container, .login-container {
     display: flex;
     justify-content: center;
@@ -235,15 +236,19 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    background-attachment: fixed; /* Ensures background stays fixed */
 }
 
-.register-box, .login-box {
+/* Base box styles (used for Login box now) */
+.login-box {
     background: rgba(255, 255, 255, 0.9);
     border-radius: 20px;
     padding: 40px 30px;
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     width: 320px;
     text-align: center;
+    position: relative; /* For z-index in relation to overlay */
+    z-index: 1;
 }
 
 .register-box h2, .login-box h2 {
@@ -273,7 +278,7 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
 .btn:hover {
     background: linear-gradient(90deg, #60a5fa, #a78bfa);
 }
-/* ====== Register Form Enhancements ====== */
+/* ====== Register Form Enhancements (Old styles, superseded by appointment styles below) ====== */
 .extra-fields {
   display: flex;
   gap: 10px;
@@ -294,14 +299,12 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
   transition: border 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Hover & focus for better interactivity */
 .extra-fields input:focus,
 .extra-fields select:focus {
   border-color: #a78bfa;
   box-shadow: 0 0 5px rgba(167, 139, 250, 0.5);
 }
 
-/* Make the dropdown arrow match the style */
 .extra-fields select {
   appearance: none;
   -webkit-appearance: none;
@@ -312,62 +315,360 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
   background-size: 12px;
 }
 
-/* Ensure consistent spacing below */
 .register-box form {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-.dashboard-container {
-    max-width: 600px;
-    margin: 50px auto;
-    padding: 30px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 16px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-    color: #fff;
-    text-align: center;
-}
 
-.dashboard-header {
-    margin-bottom: 25px;
+/* =================================================== */
+/* NEW: APPOINTMENT REGISTRATION FORM STYLING (Override for .register-box) */
+/* =================================================== */
+
+.register-page {
+    /* Background setup is already done in the shared section above */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
     position: relative;
 }
 
-.logout-btn {
+/* Light overlay for readability */
+.register-page::before {
+    content: "";
     position: absolute;
-    top: 0;
-    right: 0;
-    background: #ff6b6b;
-    color: white;
-    padding: 8px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: 0.3s;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(5px);
+    z-index: 0;
 }
 
-.logout-btn:hover {
-    background: #ff4444;
-}
-
-.role-tag {
-    color: #ddd;
-    font-size: 0.9rem;
-    margin-bottom: 10px;
-}
-
-.tasks {
-    list-style: none;
-    padding: 0;
+/* Specific styling for the appointment form card */
+.appointment-form-container {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 35px 45px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 500px;
     text-align: left;
 }
 
-.tasks li {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 10px 15px;
-    margin: 8px 0;
+/* This is the new style, overriding the old .register-box h2 */
+.appointment-form-container h2 {
+    color: #3f3f5a;
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.appointment-form-container .subtitle {
+    color: #6a6a8a;
+    font-size: 1.1em;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.appointment-form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #4f4f6a;
+    font-size: 0.95em;
+}
+
+.form-group .subtext {
+    font-weight: 400;
+    color: #888;
+    font-size: 0.85em;
+}
+
+/* Targetting both input and select elements */
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    font-size: 1em;
+    color: #333;
+    background-color: #fcfcfc;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control::placeholder {
+    color: #bbb;
+}
+
+.form-control:focus {
+    border-color: #a78bfa;
+    box-shadow: 0 0 8px rgba(167, 139, 250, 0.2);
+    outline: none;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+/* Checkbox styling */
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    accent-color: #a78bfa;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.checkbox-item label {
+    margin-bottom: 0;
+    font-weight: 400;
+    color: #5f5f7a;
+    cursor: pointer;
+}
+
+/* hCaptcha placeholder styling */
+.hcaptcha-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.hcaptcha-placeholder {
+    text-align: right;
+    color: #999;
+    font-size: 0.7em;
+    line-height: 1.2;
+}
+
+.hcaptcha-placeholder img {
+    margin-bottom: 3px;
+}
+
+/* Agreement text */
+.agreement-group {
+    margin-top: 15px;
+}
+.agreement-group .link {
+    color: #a78bfa;
+    text-decoration: none;
+    font-weight: 500;
+}
+.agreement-group .link:hover {
+    text-decoration: underline;
+}
+
+/* Continue Button */
+.appointment-btn {
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(90deg, #60a5fa, #a78bfa);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.appointment-btn:hover {
+    box-shadow: 0 5px 20px rgba(96, 165, 250, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Returning text */
+.returning-text {
+    text-align: center;
+    margin-top: 30px;
+    color: #5f5f7a;
+    font-size: 0.95em;
+}
+.returning-text .login-link {
+    color: #60a5fa;
+    text-decoration: none;
+    font-weight: 600;
+}
+.returning-text .login-link:hover {
+    text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .appointment-form-container {
+        padding: 25px 30px;
+    }
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .appointment-form-container h2 {
+        font-size: 1.5em;
+    }
+    .appointment-form-container .subtitle {
+        font-size: 1em;
+    }
+}
+/* END OF APPOINTMENT STYLES */
+
+/* Dashboard & Tasks styling */
+.dashboard-container {
+  max-width: 840px;
+  margin: 40px auto;
+  padding: 28px;
+  background: rgba(255,255,255,0.88);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  text-align: center;
+  position: relative;
+  color: #222;
+}
+
+.dashboard-header { position: relative; padding-top: 10px; margin-bottom: 10px; }
+.avatar {
+  width: 84px; height: 84px; border-radius: 50%;
+  object-fit: cover; border: 3px solid rgba(167,139,250,0.6);
+  box-shadow: 0 6px 18px rgba(106,90,205,0.12);
+  margin-bottom: 8px;
+}
+
+.logout-btn {
+  position: absolute; right: 18px; top: 18px;
+  background: #ff7b7b; color: #fff; padding: 8px 12px; border-radius: 10px; text-decoration: none;
+}
+
+.progress-wrap { margin: 12px 0 18px; text-align: left; }
+.progress-label { font-size: 0.95rem; margin-bottom: 6px; color: #443064; font-weight: 600; }
+.progress-bar {
+  width: 100%; height: 14px; background: linear-gradient(90deg, #f1f1f6, #eef2ff);
+  border-radius: 10px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+.progress-fill {
+  height: 100%; width: 0; background: linear-gradient(90deg,#a78bfa,#60a5fa); border-radius: 10px;
+  transition: width 300ms ease;
+}
+
+.tasks-title { margin-top: 10px; color: #6a2cff; font-weight: 700; }
+
+.tasks-list { list-style: none; padding: 0; margin: 18px 0; text-align: left; }
+.task-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; margin-bottom: 10px;
+  background: linear-gradient(180deg,#fff,#fbfbff);
+  border-radius: 10px; border: 1px solid rgba(200,190,230,0.4);
+}
+.task-item.done { opacity: 0.6; text-decoration: line-through; background: linear-gradient(180deg,#f0f7ff,#eef6ff); }
+
+.task-item label { width: 100%; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+.task-text { font-size: 1rem; color: #333; }
+
+/* button */
+.cta-btn { background: linear-gradient(90deg,#f8a1d1,#a890fe,#7bdff2); color: #fff; padding: 10px 22px; border-radius: 10px; text-decoration: none; display:inline-block; }
+
+.reflection-box {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
     border-radius: 10px;
+    border: 1px solid #ccc;
+    background: #fafafa;
+    resize: vertical;
+    font-size: 14px;
+}
+.activity-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.activity-item {
+    background: #eef2ff;
+    padding: 14px 20px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    font-size: 17px;
+}
+
+.cta-btn {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 12px 30px;
+    background: linear-gradient(90deg, #7b5bff, #8fd3ff);
     color: #fff;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 18px;
+}
+.about-box {
+    margin-top: 35px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.about-box h3 {
+    color: #3f51b5;
+    margin-bottom: 10px;
+}
+
+.about-box p {
+    color: #444;
+    line-height: 1.6;
+}
+.about-container {
+    max-width: 800px;
+    margin: 120px auto 40px;
+    padding: 30px 40px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(5px);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    color: #333;
+}
+
+.about-container h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.about-container p {
+    line-height: 1.7;
+    font-size: 1.1rem;
 }
 .admin-container {
     max-width: 900px;
@@ -393,22 +694,6 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
 .admin-header p {
     color: #ddd;
     font-size: 1rem;
-}
-
-.logout-btn {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: #ff6b6b;
-    color: white;
-    padding: 8px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: 0.3s;
-}
-
-.logout-btn:hover {
-    background: #ff4444;
 }
 
 .admin-table-wrapper {
@@ -790,134 +1075,30 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
 .options input[type="radio"] {
   accent-color: #a890fe;
 }
-/* Dashboard & Tasks styling */
-.dashboard-container {
-  max-width: 840px;
-  margin: 40px auto;
-  padding: 28px;
-  background: rgba(255,255,255,0.88);
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-  text-align: center;
-  position: relative;
-  color: #222;
+/* In your static/css/style.css or similar file */
+
+/* Target the form-group containing the gender select */
+.register-box .form-row .form-group select#gender {
+    max-width: 150px; /* Adjust this value as needed */
+    width: 100%; /* Ensures it's responsive within its max-width */
+    box-sizing: border-box; /* Include padding and border in the element's total width */
 }
 
-.dashboard-header { position: relative; padding-top: 10px; margin-bottom: 10px; }
-.avatar {
-  width: 84px; height: 84px; border-radius: 50%;
-  object-fit: cover; border: 3px solid rgba(167,139,250,0.6);
-  box-shadow: 0 6px 18px rgba(106,90,205,0.12);
-  margin-bottom: 8px;
-}
-
-.logout-btn {
-  position: absolute; right: 18px; top: 18px;
-  background: #ff7b7b; color: #fff; padding: 8px 12px; border-radius: 10px; text-decoration: none;
-}
-
-.progress-wrap { margin: 12px 0 18px; text-align: left; }
-.progress-label { font-size: 0.95rem; margin-bottom: 6px; color: #443064; font-weight: 600; }
-.progress-bar {
-  width: 100%; height: 14px; background: linear-gradient(90deg, #f1f1f6, #eef2ff);
-  border-radius: 10px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-}
-.progress-fill {
-  height: 100%; width: 0; background: linear-gradient(90deg,#a78bfa,#60a5fa); border-radius: 10px;
-  transition: width 300ms ease;
-}
-
-.tasks-title { margin-top: 10px; color: #6a2cff; font-weight: 700; }
-
-.tasks-list { list-style: none; padding: 0; margin: 18px 0; text-align: left; }
-.task-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 14px; margin-bottom: 10px;
-  background: linear-gradient(180deg,#fff,#fbfbff);
-  border-radius: 10px; border: 1px solid rgba(200,190,230,0.4);
-}
-.task-item.done { opacity: 0.6; text-decoration: line-through; background: linear-gradient(180deg,#f0f7ff,#eef6ff); }
-
-.task-item label { width: 100%; cursor: pointer; display: flex; align-items: center; gap: 12px; }
-.task-text { font-size: 1rem; color: #333; }
-
-/* button */
-.cta-btn { background: linear-gradient(90deg,#f8a1d1,#a890fe,#7bdff2); color: #fff; padding: 10px 22px; border-radius: 10px; text-decoration: none; display:inline-block; }
-
-.reflection-box {
+/* If you want to make the age input similar in width */
+.register-box .form-row .form-group input#age {
+    max-width: 150px; /* Match the gender field width */
     width: 100%;
-    margin-top: 12px;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    background: #fafafa;
-    resize: vertical;
-    font-size: 14px;
-}
-.activity-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 20px;
+    box-sizing: border-box;
 }
 
-.activity-item {
-    background: #eef2ff;
-    padding: 14px 20px;
-    margin-bottom: 12px;
-    border-radius: 12px;
-    font-size: 17px;
+/* You might want to adjust the spacing between age and gender if they become very narrow */
+.register-box .form-row .form-group {
+    flex: 1; /* Allows form groups in a row to take equal space */
+    min-width: 120px; /* Prevents them from becoming too small */
+    margin-right: 15px; /* Add some space between them */
 }
 
-.cta-btn {
-    display: inline-block;
-    margin-top: 25px;
-    padding: 12px 30px;
-    background: linear-gradient(90deg, #7b5bff, #8fd3ff);
-    color: #fff;
-    border-radius: 12px;
-    text-decoration: none;
-    font-size: 18px;
+/* Remove margin-right for the last item in the row */
+.register-box .form-row .form-group:last-child {
+    margin-right: 0;
 }
-.about-box {
-    margin-top: 35px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 15px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-}
-
-.about-box h3 {
-    color: #3f51b5;
-    margin-bottom: 10px;
-}
-
-.about-box p {
-    color: #444;
-    line-height: 1.6;
-}
-.about-container {
-    max-width: 800px;
-    margin: 120px auto 40px;
-    padding: 30px 40px;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(5px);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    color: #333;
-}
-
-.about-container h2 {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 15px;
-}
-
-.about-container p {
-    line-height: 1.7;
-    font-size: 1.1rem;
-}
-

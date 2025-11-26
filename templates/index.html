@@ -4,7 +4,8 @@
   <div class="hero-content">
     <h2>Welcome to <span>MindEase</span></h2>
     <p>Your safe space to understand and overcome life’s challenges.</p>
-    <a href="{{ url_for('register') }}" class="cta-btn">Join Now</a>
+    {# 🚩 FIX: Changed 'register' to 'register_info' to match the Flask endpoint #}
+    <a href="{{ url_for('register_info') }}" class="cta-btn">Join Now</a>
   </div>
 </section>
 

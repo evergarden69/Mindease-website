@@ -1,25 +1,87 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% block content %}
 
-<div class="register-container register-page">
+<div class="register-page">
+    <div class="register-box appointment-form-container">
+        <h2>Sign up to get started scheduling an appointment</h2>
+        <p class="subtitle">We welcome you with open arms</p>
 
-    <div class="register-box">
-        <h2> Create Your Account</h2>
-        <form method="POST" action="{{ url_for('register') }}">
-            <input type="email" name="email" placeholder="Enter your email" required>
-            <input type="password" name="password" placeholder="Create a password" required>
-            <input type="password" name="confirm" placeholder="Confirm your password" required>
+        <form action="{{ url_for('register_info') }}" method="POST">
+            {# 🔑 CRITICAL: Include the hidden tag for CSRF and other hidden fields #}
+            {{ form.hidden_tag() }}
 
-            <div class="extra-fields">
-                <input type="number" name="age" placeholder="Enter your age" min="10" max="120">
-                <select name="gender">
-                    <option value="" disabled selected>Select gender</option>
-                    <option value="Male">Male ♂️</option>
-                    <option value="Female">Female ♀️</option>
-                </select>
+            <div class="form-group">
+                <label for="email">Patient or Parent/Guardian Email Address</label>
+                {{ form.email(class="form-control", placeholder="example@email.com") }}
+                {# Display validation errors for email #}
+                {% for error in form.email.errors %}
+                    <span class="text-danger error-message">{{ error }}</span>
+                {% endfor %}
             </div>
 
-            <button type="submit" class="btn">Sign Up</button>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="location">Patient Location</label>
+                    {{ form.location(class="form-control", placeholder="Select State") }}
+                    {# Display validation errors for location #}
+                    {% for error in form.location.errors %}
+                        <span class="text-danger error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="dob">Patient Date of Birth</label>
+                    {# 👇 FIX: Corrected Jinja syntax by moving **kwargs last, and added ID/maxlength #}
+                    {{ form.dob(class="form-control", placeholder="MM/DD/YYYY", type="tel", pattern="[0-9/]*", id="dob_input", maxlength=10, **{'data-type': 'text'}) }}
+                    {# Display validation errors for DOB #}
+                    {% for error in form.dob.errors %}
+                        <span class="text-danger error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group services-group">
+                <label>Interested Services <span class="subtext">(Select all that apply)</span></label>
+
+                <div class="checkbox-item">
+                    {{ form.therapy_services }}
+                    <label for="therapy_services">Therapy services (18+)</label>
+                </div>
+
+                <div class="checkbox-item">
+                    {{ form.psychiatry_management }}
+                    <label for="psychiatry_management">Psychiatry/medication management (12+)</label>
+                </div>
+
+                <div class="checkbox-item">
+                    {{ form.substance_counseling }}
+                    <label for="substance_counseling">Substance use counseling/medication-assisted addiction treatment (18+)</label>
+                </div>
+
+                <div class="checkbox-item">
+                    {{ form.not_sure }}
+                    <label for="not_sure">I'm not sure</label>
+                </div>
+            </div>
+
+            <div class="form-group hcaptcha-group">
+                <div class="checkbox-item">
+                    {{ form.i_am_human }}
+                    <label for="i_am_human">I am human</label>
+                </div>
+                <div class="hcaptcha-placeholder">
+                    <img src="https://hcaptcha.com/assets/img/hCaptcha_logo.svg" alt="hCaptcha Logo" style="height: 20px;">
+                    <br>
+                    <small>Privacy - Terms</small>
+                </div>
+                {# Display validation errors for i_am_human (InputRequired) #}
+                {% for error in form.i_am_human.errors %}
+                    <span class="text-danger error-message d-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            {# ➡️ Use the submit field defined in forms.py and apply the button class #}
+            {{ form.submit(class="appointment-btn") }}
         </form>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -32,9 +94,76 @@
             {% endif %}
         {% endwith %}
 
-        <p>Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+        <p class="returning-text">Returning patients, please <a href="{{ url_for('login') }}" class="link login-link">login</a> to your account or call us at <strong>516-505-7200</strong> to schedule an appointment.</p>
     </div>
 </div>
 
-{% endblock %}
+<script>
+    const dobInput = document.getElementById('dob_input');
 
+    dobInput.addEventListener('input', function(e) {
+        const input = e.target;
+        let value = input.value;
+        const cursorPosition = input.selectionStart;
+
+        // 1. Filter out non-numeric characters (except '/')
+        value = value.replace(/[^0-9/]/g, '');
+
+        // 2. Apply the auto-slash mask
+        if (e.inputType !== 'deleteContentBackward') {
+            // Add first slash after MM
+            if (value.length === 2 && value.indexOf('/') === -1) {
+                value += '/';
+            }
+            // Add second slash after DD
+            else if (value.length === 5 && value.lastIndexOf('/') === 2) {
+                value += '/';
+            }
+        }
+
+        // 3. Prevent overwriting slashes or exceeding 10 characters
+        if (value.length > 10) {
+            value = value.substring(0, 10);
+        }
+
+        // 4. Update the field value
+        input.value = value;
+    });
+
+    // New Event: Auto-correct the 2-digit year to 4-digits on blur (when field loses focus)
+    dobInput.addEventListener('blur', function(e) {
+        let value = e.target.value;
+
+        // Check if the input looks like MM/DD/YY (length 8)
+        if (value.length === 8 && value.match(/^\d{2}\/\d{2}\/\d{2}$/)) {
+            const parts = value.split('/');
+            const year = parts[2];
+            let fullYear;
+
+            // Simple heuristic for century:
+            // If year is 00-25, assume 2000s (e.g., 25 -> 2025)
+            // If year is 26-99, assume 1900s (e.g., 85 -> 1985)
+            if (parseInt(year) <= 25) {
+                fullYear = '20' + year;
+            } else {
+                fullYear = '19' + year;
+            }
+
+            // Reconstruct the date with the 4-digit year
+            e.target.value = `${parts[0]}/${parts[1]}/${fullYear}`;
+        }
+    });
+
+
+    // Final check on keydown (unchanged)
+    dobInput.addEventListener('keydown', function(e) {
+        // Allow number keys, slash, backspace, delete, arrow keys, Tab
+        if (!((e.key >= '0' && e.key <= '9') || e.key === '/' ||
+            e.key === 'Backspace' || e.key === 'Delete' ||
+            e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Tab')) {
+            e.preventDefault();
+        }
+    });
+
+</script>
+{% endblock %}

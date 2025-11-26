@@ -5,7 +5,6 @@
     <title>MindEase</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=3">
 
-    <!-- Step 1: Transition styles -->
     <style>
     /* ===== Page Transition Effect ===== */
     .fade-overlay {
@@ -55,7 +54,8 @@
         <nav>
             <a href="{{ url_for('home') }}">Home</a>
             <a href="{{ url_for('about') }}">About</a>
-            <a href="{{ url_for('register') }}">Register</a>
+            {# 🚩 FIX: Changed 'register' to 'register_info' to match the Flask endpoint #}
+            <a href="{{ url_for('register_info') }}">Register</a>
             <a href="{{ url_for('login') }}">Login</a>
 
         </nav>
@@ -64,7 +64,6 @@
 
     {% block content %}{% endblock %}
 
-    <!-- Page overlay -->
     <div class="fade-overlay" id="fade-overlay">
       <div class="loader"></div>
     </div>
@@ -88,4 +87,3 @@
     </script>
 </body>
 </html>
-
