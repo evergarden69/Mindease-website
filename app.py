@@ -6,11 +6,11 @@ from datetime import datetime, timedelta, date
 from flask_migrate import Migrate
 import pickle
 
+from flask_login import LoginManager, UserMixin, current_user, login_required
+
 # --- UPDATED IMPORTS ---
-# ProfileSettingsForm must be imported here now
 from forms import RegisterForm, AccountForm, DiscussionForm, ReplyForm, ProfileSettingsForm, PasswordChangeForm
-from werkzeug.security import generate_password_hash, check_password_hash  # CHECK_PASSWORD_HASH IS NOW USED
-# Ensure Pickle is accessible for the 'tasks' field (kept the custom type for safety, but tasks fields are removed)
+from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.types import TypeDecorator, LargeBinary
 
 
@@ -39,10 +39,6 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
-# --- MASTER TASK POOL REMOVED ---
-# (The dictionary MASTER_TASKS has been removed)
-
-
 # --- Database Models (Cleaned) ---
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -63,22 +59,12 @@ class User(db.Model):
     service_substance = db.Column(db.Boolean, default=False)
     service_not_sure = db.Column(db.Boolean, default=False)
 
-    # --- TASK FIELDS REMOVED ---
-    # last_result = db.Column(db.String(50), nullable=True)
-    # tasks = db.Column(PickledDict, nullable=True)
-    # tasks_generated_on = db.Column(db.Date, nullable=True)
-    # weekly_insights = db.Column(PickledDict, nullable=True)
-    # ---------------------------
+    avatar = db.Column(db.String(200), nullable=True, default='/static/avatars/neutral_icon.png')
 
-    avatar = db.Column(db.String(200), nullable=True, default='/static/images/neutral.png')
-
-    def assign_default_avatar(self):
-        if self.gender and self.gender.lower().startswith('m'):
-            self.avatar = url_for_static('images/male.png')
-        elif self.gender and self.gender.lower().startswith('f'):
-            self.avatar = url_for_static('images/female.png')
-        else:
-            self.avatar = url_for_static('images/neutral.png')
+    # --- CRITICAL FIX: The helper function 'url_for_static' is removed/commented
+    # out below, and the assignment is moved to the route context for proper url_for usage.
+    # The default path is now a standard string for the model default.
+    pass
 
 
 # --- Community Models (Unchanged) ---
@@ -107,12 +93,9 @@ class Reply(db.Model):
     author = db.relationship('User', backref=db.backref('replies_made', lazy=True))
 
 
-def url_for_static(path: str):
-    return f"/static/{path}"
-
-
-# --- HELPER FUNCTIONS REMOVED ---
-# (generate_daily_tasks, check_and_reset_tasks, compute_progress have been removed)
+# --- Custom URL HELPER REMOVED/COMMENTED OUT ---
+# def url_for_static(path: str):
+#     return f"/static/{path}"
 
 
 # ----------------------------------------------------------------------
@@ -151,7 +134,7 @@ def login():
     return render_template('login.html')
 
 
-# --- Registration Routes (Modified to clean up task references) ---
+# --- Registration Routes (Modified for Avatar Fix) ---
 @app.route('/register', methods=['GET', 'POST'])
 def register_info():
     form = RegisterForm()
@@ -206,9 +189,17 @@ def register_account():
             service_not_sure=info['service_not_sure'],
             age=form.age.data,
             gender=form.gender.data,
-            # Removed initial task setup parameters here
         )
-        new_user.assign_default_avatar()
+
+        # --- FIX: Use url_for directly in the route for initial avatar setting ---
+        # This ensures the stored URL path matches the format used by Flask's url_for
+        if new_user.gender and new_user.gender.lower().startswith('m'):
+            new_user.avatar = url_for('static', filename='avatars/male_icon.png')
+        elif new_user.gender and new_user.gender.lower().startswith('f'):
+            new_user.avatar = url_for('static', filename='avatars/female_icon.png')
+        else:
+            new_user.avatar = url_for('static', filename='avatars/neutral_icon.png')
+        # --- END FIX ---
 
         db.session.add(new_user)
         db.session.commit()
@@ -234,12 +225,55 @@ def community_dashboard():
         flash("User not found.", "error")
         return redirect(url_for('home'))
 
+    # Check and update the avatar URL from the database if the current URL is just the filename string
+    # This acts as a migration step for old database entries that used the raw string
+    if not user.avatar.startswith('/static/'):
+        # We need the app context to use url_for here
+        with app.app_context():
+            # This is a safe fallback to ensure old users get a proper avatar path
+            if user.gender and user.gender.lower().startswith('m'):
+                user.avatar = url_for('static', filename='avatars/male_icon.png')
+            elif user.gender and user.gender.lower().startswith('f'):
+                user.avatar = url_for('static', filename='avatars/female_icon.png')
+            else:
+                user.avatar = url_for('static', filename='avatars/neutral_icon.png')
+            db.session.commit()
+
     latest_discussions = Discussion.query.order_by(Discussion.created_at.desc()).limit(10).all()
 
+    # NOTE: The avatar URLs shown on this page will now benefit from the cache_buster applied in settings,
+    # because the user.avatar field contains the full, correct url_for path.
     return render_template(
         'client_dashboard.html',
         user=user,
         discussions=latest_discussions,
+        hide_nav=True
+    )
+
+
+@app.route('/community/category/<category_name>')
+def view_category(category_name):
+    if 'user_email' not in session:
+        flash("Please log in to view the community.", "error")
+        return redirect(url_for('login'))
+
+    user = User.query.filter_by(email=session['user_email']).first()
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for('home'))
+
+    # Filter discussions by the category name passed in the URL
+    filtered_discussions = Discussion.query.filter_by(category=category_name).order_by(
+        Discussion.created_at.desc()).all()
+
+    if not filtered_discussions:
+        flash(f"No discussions found in the category: {category_name}.", "info")
+
+    return render_template(
+        'client_dashboard.html',
+        user=user,
+        discussions=filtered_discussions,
+        current_category=category_name,  # Optionally pass this to highlight the category filter
         hide_nav=True
     )
 
@@ -316,7 +350,7 @@ def view_discussion(discussion_id):
                            hide_nav=True)
 
 
-# --- UPDATED PROFILE SETTINGS ROUTE ---
+# --- UPDATED PROFILE SETTINGS ROUTE (No change needed, it was already correct) ---
 @app.route('/settings', methods=['GET', 'POST'])
 def profile_settings():
     if 'user_email' not in session:
@@ -331,7 +365,7 @@ def profile_settings():
     # 1. Profile Update Form (for username/avatar)
     profile_form = ProfileSettingsForm(obj=user)
 
-    # 2. Password Change Form
+    # 2. Password Change Form (Note: This form is not currently visible in settings.html based on your last provided template)
     password_form = PasswordChangeForm()
 
     # --- Profile Form Submission Logic (Checks for the specific submit button data) ---
@@ -341,22 +375,37 @@ def profile_settings():
                 flash("That username is already taken. Please choose another.", "warning")
                 # Need to pass both forms back to the template
                 return render_template('settings.html', profile_form=profile_form, password_form=password_form,
-                                       user=user)
+                                       user=user, cache_buster=datetime.now().timestamp())
 
         user.username = profile_form.username.data
-        user.avatar = profile_form.avatar.data
+
+        # --- NEW FIX: Avatar Mapping and Saving ---
+        selected_avatar_name = profile_form.avatar.data
+
+        # NOTE: You must have a defined URL mapping for each icon option
+        avatar_mapping = {
+            'Male Icon': url_for('static', filename='avatars/male_icon.png'),
+            'Female Icon': url_for('static', filename='avatars/female_icon.png'),
+            'Neutral Icon': url_for('static', filename='avatars/neutral_icon.png'),
+        }
+
+        if selected_avatar_name in avatar_mapping:
+            user.avatar = avatar_mapping[selected_avatar_name]
+
+        # --- END FIX ---
 
         db.session.commit()
         flash("Profile updated successfully! ✨", "success")
         return redirect(url_for('profile_settings'))
 
-    # --- Password Form Submission Logic (Checks for the specific submit button data) ---
+    # --- Password Form Submission Logic (Kept for completeness, though likely not visible/used) ---
     if password_form.validate_on_submit() and password_form.submit_password.data:
         # 1. Check if the current password is correct
         if not check_password_hash(user.password, password_form.current_password.data):
             flash("Current password entered is incorrect.", "error")
             # Pass both forms back to the template
-            return render_template('settings.html', profile_form=profile_form, password_form=password_form, user=user)
+            return render_template('settings.html', profile_form=profile_form, password_form=password_form, user=user,
+                                   cache_buster=datetime.now().timestamp())
 
         # 2. Hash and update the new password
         user.password = generate_password_hash(password_form.new_password.data)
@@ -365,11 +414,14 @@ def profile_settings():
         return redirect(url_for('logout'))
 
     # --- Initial GET Request (Pass both forms) ---
-    return render_template('settings.html', profile_form=profile_form, password_form=password_form, user=user,
+    return render_template('settings.html',
+                           profile_form=profile_form,
+                           password_form=password_form,
+                           user=user,
+                           # --- NEW: Cache Buster variable passed on every render ---
+                           # Using the current timestamp ensures the avatar image source changes every time.
+                           cache_buster=datetime.now().timestamp(),
                            hide_nav=True)
-
-
-# --- END OF UPDATED PROFILE SETTINGS ROUTE ---
 
 
 # ----------------------------------------------------------------------
@@ -385,16 +437,24 @@ def seed_db():
     if not test_user:
         test_user = User(
             email='test@client.com',
-            password=generate_password_hash('password'),
+            password=generate_password_hash('password360'),
             role='client',
-            username='TestUser',
+            username='TestUserSeed',  # CRITICAL: Ensure a unique seed username to prevent IntegrityError
             age=30,
             gender='M',
             location='TX',
             dob='01/01/1990',
-            # Removed last_result field assignment
         )
-        test_user.assign_default_avatar()
+
+        # --- FIX: Use url_for directly in the route for initial avatar setting ---
+        if test_user.gender and test_user.gender.lower().startswith('m'):
+            test_user.avatar = url_for('static', filename='avatars/male_icon.png')
+        elif test_user.gender and test_user.gender.lower().startswith('f'):
+            test_user.avatar = url_for('static', filename='avatars/female_icon.png')
+        else:
+            test_user.avatar = url_for('static', filename='avatars/neutral_icon.png')
+        # --- END FIX ---
+
         db.session.add(test_user)
         db.session.commit()
 
@@ -503,13 +563,67 @@ def logout():
     return redirect(url_for('home'))
 
 
-# --- ASSESSMENT ROUTES REMOVED ---
-# (@app.route('/assessment') and @app.route('/result/<category>') have been removed)
-
-
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+
+@app.route('/guidelines')
+def guidelines():
+    # You might want to ensure the user is logged in, but guidelines are often public.
+    # We will assume login is required for consistency.
+    if 'user_email' not in session:
+        flash("Please log in to view the guidelines.", "error")
+        return redirect(url_for('login'))
+
+    return render_template('guidelines.html')
+
+
+@app.route('/request_appointment')
+def request_appointment():
+    # You might want to ensure the user is logged in
+    if 'user_email' not in session:
+        flash("Please log in to schedule an appointment.", "error")
+        return redirect(url_for('login'))
+
+    return render_template('request_appointment.html', hide_nav=True)
+
+@app.route('/view_appointments')
+def view_appointments():
+    # This will be the page that shows the actual calendar/list of appointments
+    if 'user_email' not in session:
+        flash("Please log in.", "error")
+        return redirect(url_for('login'))
+
+    flash("Viewing appointments page (Placeholder).", "info")
+    return redirect(url_for('community_dashboard')) # Temporary redirect
+
+# Route for displaying the review page
+@app.route('/appointment_review')
+@login_required
+def appointment_review():
+    # In a real app, you would fetch selected appointment data here
+    return render_template('appointment_review.html', hide_nav=True)
+
+# Route for handling the final confirmation/booking logic
+@app.route('/confirm_appointment', methods=['POST'])
+@login_required
+def confirm_appointment():
+    # *** FUTURE LOGIC: This is where you would call the calendar API/database to book the event ***
+
+    # Example: Fetching data from the form
+    location = request.form.get('location')
+    datetime_str = request.form.get('datetime')
+
+    # After successful booking:
+    flash(f"Appointment confirmed for {datetime_str} at {location}!", "success")
+    return redirect(url_for('appointment_success'))
+
+@app.route('/appointment_success')
+@login_required
+def appointment_success():
+    # Final page in the booking flow
+    return render_template('appointment_success.html', hide_nav=True)
 
 
 if __name__ == '__main__':

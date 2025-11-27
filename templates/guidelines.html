@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Forum Guidelines{% endblock %}
+
+{% block content %}
+<div class="guidelines-page-layout" style="max-width: 800px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: relative;">
+
+    {# --- ADDED BACK BUTTON --- #}
+    <a href="{{ url_for('community_dashboard') }}" class="back-to-step-btn" style="position: absolute; top: 25px; left: 30px; text-decoration: none; color: #4b0082; font-weight: 600;">
+        &larr; Back to Community
+    </a>
+
+    <h2 style="text-align: center; color: #5d5dff; margin-bottom: 30px; padding-top: 10px;">Community Guidelines</h2>
+
+    <div class="guidelines-nav" style="margin-bottom: 30px; border-bottom: 1px solid #eee;">
+        <ul style="list-style: none; padding: 0; display: flex; gap: 20px;">
+            <li><a href="#supportive" style="color: #4b0082; font-weight: bold;">Supportive</a></li>
+            <li><a href="#respectful" style="color: #4b0082; font-weight: bold;">Respectful</a></li>
+            <li><a href="#empowering" style="color: #4b0082; font-weight: bold;">Empowering</a></li>
+            <li><a href="#safe" style="color: #4b0082; font-weight: bold;">Safe</a></li>
+            <li><a href="#friendly" style="color: #4b0082; font-weight: bold;">Friendly</a></li>
+        </ul>
+    </div>
+
+    <h3 id="supportive" style="color: #5d5dff; margin-top: 20px;">Supportive</h3>
+    <p>We encourage our members to give and receive support, sharing their stories and experiences in times of distress and wellness.</p>
+
+    <hr>
+
+    <h3 id="respectful" style="color: #5d5dff; margin-top: 20px;">Respectful</h3>
+    <p>We respect where members are on their recovery journey and listen without judgment. Appreciate that others may have an opinion different from yours. If you see abuse, report it to us using the 'report post' button on the Forums.</p>
+
+    <hr>
+
+    <h3 id="empowering" style="color: #5d5dff; margin-top: 20px;">Empowering</h3>
+    <p>We empower our members to make decisions that support good mental health and wellbeing. Don't hold back in sharing your knowledge – it's likely someone will find it useful or interesting. When you give information, provide your sources.</p>
+
+    <hr>
+
+    <h3 id="safe" style="color: #5d5dff; margin-top: 20px;">Safe</h3>
+    <p>We support our members to talk openly about difficult subjects in a safe manner. Remember that the Forums are public. Don't post personal information that you wouldn't be comfortable sharing with a stranger. We recommend you use only your first name or a pseudonym in your username and that you don't post any information that may identify you or anyone else, such as your address, email address, or phone number.</p>
+
+    <hr>
+
+    <h3 id="friendly" style="color: #5d5dff; margin-top: 20px;">Friendly</h3>
+    <p>We approach all our discussions with kindness, warmth and always assume the best intentions. Welcome new members, share your tips or show them how to use the website. If you are a new member, make sure to introduce yourself - our community is waiting for you.</p>
+
+    <p style="font-weight: bold; margin-top: 15px;">It will also be helpful if you:</p>
+    <ul>
+        <li>**Stay on topic.** When creating a new discussion, give a clear topic title and put your post in the appropriate category. When contributing to an existing discussion, try to stay 'on topic.' If something new comes up within a subject that you would like to discuss, start a new discussion.</li>
+        <li>**One account per person.** Running multiple identities on our Forums is not permitted. If you are unable to access your account, please get in touch with us rather than creating a new one.</li>
+    </ul>
+
+    <hr style="margin-top: 40px; margin-bottom: 40px;">
+
+    <h3 style="color: #5d5dff;">We maintain the right to remove posts and threads</h3>
+    <p>We need to make sure that material posted on the Forums is not potentially harmful. For this reason, we may edit or choose not to publish any post, profile image or display name that:</p>
+
+    <ul style="list-style: disc; margin-left: 20px;">
+        <li>contains disrespectful or derogatory remarks about any other member</li>
+        <li>contains advice or content that we believe is damaging, unhelpful or distressing to others</li>
+        <li>contains links</li>
+        <li>contains swearing or offensive language is nonsensical and/or irrelevant</li>
+        <li>promotes personal beliefs in a way that is disrespectful of the choices of others</li>
+        <li>Infringes the privacy of individuals or service providers</li>
+        <li>is racist, sexist, homophobic, sexually explicit or suggestive, abusive or otherwise discriminatory or objectionable</li>
+        <li>advertises products, services, events or research</li>
+        <li>makes any reference to specific prescription medication names and/or dosages or seeks medical advice</li>
+        <li>includes personal information such as images clearly displaying your face, full names, phone numbers, locations, postal or email addresses; or encourages the sharing of such details</li>
+        <li>puts overt pressure on other members to respond, including 'goodbye' messages</li>
+        <li>makes attempt to facilitate personal offline contact with other members</li>
+        <li>describes or encourages violence, suicide or other activity which could endanger the safety or wellbeing of others</li>
+        <li>contains methods or detail of suicide, self-harm or sexual abuse</li>
+        <li>is a copy of another post or contains the same, or similar, message posted multiple times elsewhere</li>
+        <li>contains references to edits or moderation</li>
+        <li>is more than 2,500 characters in length or submitted in multiple parts to avoid the character limit</li>
+        <li>is made from duplicate accounts</li>
+    </ul>
+
+</div>
+{% endblock %}

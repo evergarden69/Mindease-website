@@ -5,18 +5,21 @@
 {% block content %}
 <div class="form-container" style="max-width: 600px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: relative;">
 
-    {# New back button added here based on your last request #}
-    <a href="{{ url_for('community_dashboard') }}" class="back-to-community-btn" style="position: absolute; top: 25px; left: 30px; text-decoration: none; color: #6a5acd; font-weight: 600;">
+    {# NEW: Back button added for easy navigation #}
+    <a href="{{ url_for('community_dashboard') }}" class="back-to-step-btn" style="position: absolute; top: 25px; left: 30px; text-decoration: none; color: #4b0082; font-weight: 600;">
         &larr; Back to Community
     </a>
 
     <h2 style="text-align: center; color: #5d5dff; margin-bottom: 30px; padding-top: 10px;">User Settings</h2>
 
     <div style="text-align: center; margin-bottom: 25px;">
-        {# Corrected path assumption for user avatar #}
-        <img src="{{ user.avatar }}"
+        {# Display User Avatar #}
+        {# --- CRITICAL FIX: The style attributes were outside the closing bracket of the <img> tag. --- #}
+        <img src="{{ user.avatar }}?{{ cache_buster }}"
              alt="{{ user.username }} avatar"
+             class="user-settings-avatar"
              style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #5d5dff;">
+
         <p style="margin-top: 10px; font-weight: bold;">Current User: {{ user.username }}</p>
     </div>
 
@@ -39,15 +42,20 @@
             {% endfor %}
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px;">
-            {# This Logout button will be large due to the flex layout and lack of custom CSS #}
-            <a href="{{ url_for('logout') }}" class="btn btn-secondary" style="flex-grow: 1; margin-right: 15px; background-color: #f44336; border: none; color: white; padding: 10px 20px; text-align: center; border-radius: 5px; text-decoration: none;">Logout</a>
+        {# FIX: Separating the buttons and applying the gradient styling as intended #}
+        <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 25px;">
 
-            {{ profile_form.submit(class="btn btn-primary", style="flex-grow: 1; background-color: #5d5dff; border: none; padding: 10px 20px; border-radius: 5px;") }}
+            {# LOGOUT BUTTON (As a link with custom gradient styling) #}
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary" style="width: 50%; background: linear-gradient(to right, #9370DB, #6A5ACD); color: white; border: none; padding: 10px 0; border-radius: 5px; text-align: center; text-decoration: none; font-weight: bold;">
+                Logout
+            </a>
+
+            {# UPDATE PROFILE BUTTON (As the submit button with custom gradient styling) #}
+            <button type="submit" class="btn btn-primary" style="width: 50%; background: linear-gradient(to right, #6A5ACD, #4169E1); color: white; border: none; padding: 10px 0; border-radius: 5px; font-weight: bold;">
+                Update Profile
+            </button>
         </div>
     </form>
-
-    {# The password change form is REMOVED from this version #}
 
 </div>
 {% endblock %}

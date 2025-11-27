@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Select Time Slot{% endblock %}
+
+{% block content %}
+<div class="appointment-page-wrapper py-5" style="min-height: 100vh; background-image: url('{{ url_for('static', filename='images/background.jpg') }}'); background-size: cover; background-position: center;">
+    
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <div class="appointment-card p-4 p-md-5 border rounded shadow-lg" 
+                     style="background-color: white; border-radius: 15px;">
+                    
+                    <a href="{{ url_for('request_appointment') }}" class="back-link" 
+                       style="color: #4b0082; font-weight: 600; text-decoration: none; margin-bottom: 20px; display: inline-block;">
+                        &larr; Back to Location Select
+                    </a>
+                    
+                    <h2 class="text-center mb-5" style="color: #5d5dff; font-weight: 600;">Select Your Appointment Time</h2>
+
+                    <div class="row">
+                        
+                        <div class="col-md-5 border-end pe-md-4">
+                            
+                            <div class="mb-4 pb-3 border-bottom">
+                                <h4 style="color: #4b0082;">Mindful Care - FL, Virtual 2</h4>
+                                <div class="text-muted small">Appointments are in Eastern Standard Time (EST)</div>
+                                <div class="text-muted small">(516) 505-7200</div>
+                            </div>
+                            
+                            <div class="calendar-mockup mb-4">
+                                <h5 class="mb-3">November 2025</h5>
+                                <div class="d-flex justify-content-between mb-2 small text-muted">
+                                    <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                                </div>
+                                <div class="calendar-grid d-grid gap-2" style="grid-template-columns: repeat(7, 1fr);">
+                                    {% for i in range(25) %}
+                                        {% set day = 27 + i %}
+                                        <span class="date-cell p-2 text-center border rounded small" 
+                                              style="cursor: pointer; background-color: {% if day == 28 %}#E6E6FA; border-color: #5d5dff; font-weight: bold;{% else %}#f8f9fa;{% endif %}">
+                                            {{ (day % 30) + 1 if day >= 30 else day }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <p class="mt-4 small text-muted">Use the calendar to jump to available dates.</p>
+                            
+                        </div>
+
+                        <div class="col-md-7 ps-md-4">
+                            <h4 class="mb-4" style="color: #5d5dff;">Available Times - Nov 28 (Fri)</h4>
+
+                            <div class="slot-scroll-area" style="max-height: 400px; overflow-y: auto;">
+                                
+                                <h5 class="slot-header mt-3 mb-2">Morning</h5>
+                                <div class="d-flex flex-wrap gap-2 mb-4">
+                                    <button class="slot-btn">8:00 AM</button>
+                                    <button class="slot-btn">8:30 AM</button>
+                                    <button class="slot-btn">9:00 AM</button>
+                                    <button class="slot-btn">9:30 AM</button>
+                                    <button class="slot-btn">10:00 AM</button>
+                                    <button class="slot-btn">10:30 AM</button>
+                                </div>
+
+                                <h5 class="slot-header mt-3 mb-2">Afternoon</h5>
+                                <div class="d-flex flex-wrap gap-2 mb-4">
+                                    <button class="slot-btn">1:00 PM</button>
+                                    <button class="slot-btn">1:30 PM</button>
+                                    <button class="slot-btn slot-selected">2:00 PM</button>
+                                    <button class="slot-btn">2:30 PM</button>
+                                    <button class="slot-btn">3:00 PM</button>
+                                    <button class="slot-btn">3:30 PM</button>
+                                </div>
+
+                                <h5 class="slot-header mt-3 mb-2">Evening</h5>
+                                <div class="d-flex flex-wrap gap-2 mb-4">
+                                    <button class="slot-btn">5:00 PM</button>
+                                    <button class="slot-btn">5:30 PM</button>
+                                    <button class="slot-btn">6:00 PM</button>
+                                    <button class="slot-btn">6:30 PM</button>
+                                </div>
+
+                            </div>
+                            
+                            <div class="mt-4 pt-3 border-top text-end">
+                                <a href="{{ url_for('appointment_review') }}"
+                                   class="btn appointment-btn-confirm"
+                                   style="background: linear-gradient(to right, #6A5ACD, #4169E1); color: white; border: none; border-radius: 20px; padding: 10px 25px; font-weight: bold; text-decoration: none;">
+                                    Confirm Selected Appointment
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.slot-btn {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    flex-grow: 1; /* Allow buttons to fill space */
+}
+
+.slot-btn:hover:not(.slot-selected) {
+    background-color: #e0e0f0;
+    border-color: #5d5dff;
+}
+
+.slot-selected {
+    background: linear-gradient(to right, #9370DB, #4169E1); /* Purple/Blue Gradient */
+    color: white;
+    border-color: #4169E1;
+}
+
+.calendar-grid .date-cell:hover {
+    background-color: #e9ecef;
+}
+</style>
+{% endblock %}

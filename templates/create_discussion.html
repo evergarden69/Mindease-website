@@ -3,8 +3,15 @@
 {% block title %}Start a New Discussion{% endblock %}
 
 {% block content %}
-<div class="form-container" style="max-width: 700px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-    <h2 style="text-align: center; color: #5d5dff; margin-bottom: 25px;">Start a New Discussion</h2>
+<div class="form-container" style="max-width: 700px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: relative;">
+
+    {# --- ADDED: BACK LINK TO COMMUNITY DASHBOARD --- #}
+    <a href="{{ url_for('community_dashboard') }}" class="back-to-step-btn" style="position: absolute; top: 25px; left: 30px; text-decoration: none; color: #4b0082; font-weight: 600;">
+        &larr; Back to Community
+    </a>
+    {# ------------------------------------------------ #}
+
+    <h2 style="text-align: center; color: #5d5dff; margin-bottom: 25px; padding-top: 10px;">Start a New Discussion</h2>
 
     <form method="POST" action="{{ url_for('create_discussion') }}">
         {{ form.hidden_tag() }} 
