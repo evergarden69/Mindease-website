@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}My Appointments{% endblock %}
+
+{% block content %}
+<div class="appointment-page-wrapper py-5" style="min-height: 100vh; background-image: url('{{ url_for('static', filename='images/background.jpg') }}'); background-size: cover; background-position: center;">
+    
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <div class="appointment-list-card p-4 p-md-5 border rounded shadow-lg" 
+                     style="background-color: white; border-radius: 15px;">
+                    
+                    <h2 class="text-center mb-5" style="color: #4b0082; font-weight: 600;">My Scheduled Appointments</h2>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="mb-4">
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    {% if appointments %}
+                        {% for appointment in appointments %}
+                            <div class="card mb-3 appointment-item shadow-sm">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        
+                                        <div class="col-md-4">
+                                            <h5 class="mb-1" style="color: #5d5dff;">
+                                                <i class="bi bi-calendar-check me-2"></i> {{ appointment.date }}
+                                            </h5>
+                                            <p class="mb-0 text-muted">{{ appointment.time }}</p>
+                                        </div>
+                                        
+                                        <div class="col-md-4">
+                                            <div class="fw-bold" style="color: #4b0082;">{{ appointment.therapist }}</div>
+                                            <p class="mb-0 small text-success">Confirmed</p>
+                                        </div>
+                                        
+                                        <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#noteModal{{ appointment.id }}">
+                                                View Note
+                                            </button>
+                                            <a href="#" class="btn btn-sm btn-danger disabled">Cancel</a>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal fade" id="noteModal{{ appointment.id }}" tabindex="-1" aria-labelledby="noteModalLabel{{ appointment.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="noteModalLabel{{ appointment.id }}">Appointment Note</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>{{ appointment.note | default("No specific note provided.", true) }}</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info text-center" role="alert">
+                            You have no upcoming appointments booked.
+                            <a href="{{ url_for('request_appointment') }}" class="alert-link fw-bold">Book your first one now!</a>
+                        </div>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

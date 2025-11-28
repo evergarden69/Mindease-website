@@ -157,3 +157,15 @@ class PasswordChangeForm(FlaskForm):
     confirm_password = PasswordField('Confirm New Password')
 
     submit_password = SubmitField('Change Password')
+
+# forms.py (Add this new form)
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Email, Length, EqualTo
+
+class AddTherapistForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=50)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=10)])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match')])
+    submit = SubmitField('Create Therapist Account')

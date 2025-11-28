@@ -1582,3 +1582,77 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
     color: #6a5acd;
     background-color: rgba(75, 0, 130, 0.05);
 }
+
+/* =================================================== */
+/* NEW: THERAPIST DASHBOARD & APPOINTMENTS TABLE STYLES */
+/* =================================================== */
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.data-table thead {
+    background: #e0f7fa; /* Light teal header */
+    color: #004d40; /* Dark teal text */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.data-table th, .data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    color: #333; /* Dark text for visibility */
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: #f7f7f7;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f0f0f0;
+}
+
+.action-buttons button {
+    margin-right: 5px;
+}
+
+/* Ensure badges are styled by Bootstrap if loaded, otherwise provide fallback */
+.badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+/* Specific Therapist Dashboard Container for dark text */
+.therapist-dashboard-container {
+    max-width: 1000px;
+    margin: 60px auto;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.95); /* Nearly opaque white background */
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    color: #333; /* Crucial: Dark text color */
+}
+
+.data-table th, .data-table td {
+    color: #333; /* Dark Text for Table Cells */
+}/* Override .admin-container for better Admin Dashboard visibility too */
+.admin-container {
+    /* Use dark text by default inside the container */
+    color: #333;
+    /* Remove white background */
+    background: rgba(255, 255, 255, 0.95);
+}
+
+/* Fix Admin Table Text Color to Dark */
+.admin-table th, .admin-table td {
+    /* Override the conflicting white text color */
+    color: #333 !important;
+}

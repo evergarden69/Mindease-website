@@ -2,14 +2,13 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 import random
 import os
+from flask_login import login_required, current_user
 from datetime import datetime, timedelta, date
 from flask_migrate import Migrate
 import pickle
 
 from flask_login import LoginManager, UserMixin, current_user, login_required
-
-# --- UPDATED IMPORTS ---
-from forms import RegisterForm, AccountForm, DiscussionForm, ReplyForm, ProfileSettingsForm, PasswordChangeForm
+from forms import RegisterForm, AccountForm, DiscussionForm, ReplyForm, ProfileSettingsForm, PasswordChangeForm, AddTherapistForm # <-- MAKE SURE TO IMPORT ADDTHERAPISTFORM
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.types import TypeDecorator, LargeBinary
 
@@ -32,15 +31,18 @@ class PickledDict(TypeDecorator):
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_super_secret_key_that_must_be_changed'
 
-# --- Database Setup ---
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mind_ease.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'  # Function name for the login page route
+login_manager.login_message_category = 'info'
 
-# --- Database Models (Cleaned) ---
-class User(db.Model):
+
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
     username = db.Column(db.String(50), unique=True, nullable=True)
@@ -61,13 +63,24 @@ class User(db.Model):
 
     avatar = db.Column(db.String(200), nullable=True, default='/static/avatars/neutral_icon.png')
 
-    # --- CRITICAL FIX: The helper function 'url_for_static' is removed/commented
-    # out below, and the assignment is moved to the route context for proper url_for usage.
-    # The default path is now a standard string for the model default.
-    pass
+class Appointment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
 
+    client_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-# --- Community Models (Unchanged) ---
+    therapist_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # MUST BE USER ID
+
+    date = db.Column(db.String(20))
+    time = db.Column(db.String(20))
+    note = db.Column(db.Text)
+
+    status = db.Column(db.String(20), default='Pending', nullable=False)  # 'Pending', 'Accepted', 'Rejected'
+
+    client = db.relationship('User', foreign_keys=[client_id],
+                             backref=db.backref('client_appointments', lazy='dynamic'))
+    therapist = db.relationship('User', foreign_keys=[therapist_id],
+                                backref=db.backref('therapist_appointments', lazy='dynamic'))
+
 class Discussion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -93,14 +106,12 @@ class Reply(db.Model):
     author = db.relationship('User', backref=db.backref('replies_made', lazy=True))
 
 
-# --- Custom URL HELPER REMOVED/COMMENTED OUT ---
-# def url_for_static(path: str):
-#     return f"/static/{path}"
+# --- CRITICAL FIX: Add user_loader callback for Flask-Login ---
+@login_manager.user_loader
+def load_user(user_id):
+    # This must return the User object for the given user_id or None
+    return db.session.get(User, int(user_id))
 
-
-# ----------------------------------------------------------------------
-# --- ROUTES ---
-# ----------------------------------------------------------------------
 
 @app.route('/')
 def home():
@@ -121,11 +132,18 @@ def login():
             session['user_email'] = user.email
             session['user_role'] = user.role
 
+            # FIX: flask-login requires login_user to actually log the user in
+            from flask_login import login_user
+            login_user(user)
+
             flash(f"Welcome back, {user.role.capitalize()}!", "success")
 
             if user.role == 'admin':
                 return redirect(url_for('admin_dashboard'))
+            elif user.role == 'therapist': # Redirect therapist to their dashboard
+                return redirect(url_for('therapist_dashboard'))
             else:
+                # Redirect to the intended page after login, which is the community dashboard
                 return redirect(url_for('community_dashboard'))
         else:
             flash("Invalid email or password. Please try again.", "error")
@@ -133,8 +151,6 @@ def login():
 
     return render_template('login.html')
 
-
-# --- Registration Routes (Modified for Avatar Fix) ---
 @app.route('/register', methods=['GET', 'POST'])
 def register_info():
     form = RegisterForm()
@@ -192,7 +208,6 @@ def register_account():
         )
 
         # --- FIX: Use url_for directly in the route for initial avatar setting ---
-        # This ensures the stored URL path matches the format used by Flask's url_for
         if new_user.gender and new_user.gender.lower().startswith('m'):
             new_user.avatar = url_for('static', filename='avatars/male_icon.png')
         elif new_user.gender and new_user.gender.lower().startswith('f'):
@@ -210,27 +225,15 @@ def register_account():
     return render_template('register_account.html', form=form)
 
 
-# ----------------------------------------------------------------------
-# --- COMMUNITY & SETTINGS ROUTES ---
-# ----------------------------------------------------------------------
-
 @app.route('/community')
+@login_required
 def community_dashboard():
-    if 'user_email' not in session:
-        flash("Please log in to view the community.", "error")
-        return redirect(url_for('login'))
-
-    user = User.query.filter_by(email=session['user_email']).first()
-    if not user:
-        flash("User not found.", "error")
-        return redirect(url_for('home'))
+    # current_user is now available because of @login_required
+    user = current_user
 
     # Check and update the avatar URL from the database if the current URL is just the filename string
-    # This acts as a migration step for old database entries that used the raw string
     if not user.avatar.startswith('/static/'):
-        # We need the app context to use url_for here
         with app.app_context():
-            # This is a safe fallback to ensure old users get a proper avatar path
             if user.gender and user.gender.lower().startswith('m'):
                 user.avatar = url_for('static', filename='avatars/male_icon.png')
             elif user.gender and user.gender.lower().startswith('f'):
@@ -241,8 +244,6 @@ def community_dashboard():
 
     latest_discussions = Discussion.query.order_by(Discussion.created_at.desc()).limit(10).all()
 
-    # NOTE: The avatar URLs shown on this page will now benefit from the cache_buster applied in settings,
-    # because the user.avatar field contains the full, correct url_for path.
     return render_template(
         'client_dashboard.html',
         user=user,
@@ -252,15 +253,9 @@ def community_dashboard():
 
 
 @app.route('/community/category/<category_name>')
+@login_required
 def view_category(category_name):
-    if 'user_email' not in session:
-        flash("Please log in to view the community.", "error")
-        return redirect(url_for('login'))
-
-    user = User.query.filter_by(email=session['user_email']).first()
-    if not user:
-        flash("User not found.", "error")
-        return redirect(url_for('home'))
+    user = current_user
 
     # Filter discussions by the category name passed in the URL
     filtered_discussions = Discussion.query.filter_by(category=category_name).order_by(
@@ -279,16 +274,9 @@ def view_category(category_name):
 
 
 @app.route('/start_discussion', methods=['GET', 'POST'])
+@login_required
 def create_discussion():
-    if 'user_email' not in session:
-        flash("You must be logged in to start a discussion.", "error")
-        return redirect(url_for('login'))
-
-    user = User.query.filter_by(email=session['user_email']).first()
-    if not user:
-        flash("User not found.", "error")
-        return redirect(url_for('home'))
-
+    user = current_user
     form = DiscussionForm()
 
     if form.validate_on_submit():
@@ -310,21 +298,14 @@ def create_discussion():
 
 
 @app.route('/discussion/<int:discussion_id>', methods=['GET', 'POST'])
+@login_required
 def view_discussion(discussion_id):
-    if 'user_email' not in session:
-        flash("You must be logged in to view discussions.", "error")
-        return redirect(url_for('login'))
-
-    current_user = User.query.filter_by(email=session['user_email']).first()
+    current_user = current_user
     discussion = Discussion.query.get_or_404(discussion_id)
 
     form = ReplyForm()
 
     if form.validate_on_submit():
-        if not current_user:
-            flash("Error: User session invalid.", "error")
-            return redirect(url_for('home'))
-
         new_reply = Reply(
             content=form.content.data,
             discussion_id=discussion.id,
@@ -332,9 +313,7 @@ def view_discussion(discussion_id):
         )
 
         db.session.add(new_reply)
-
         discussion.replies_count += 1
-
         db.session.commit()
 
         flash("Your reply has been posted successfully!", "success")
@@ -349,18 +328,10 @@ def view_discussion(discussion_id):
                            user=current_user,
                            hide_nav=True)
 
-
-# --- UPDATED PROFILE SETTINGS ROUTE (No change needed, it was already correct) ---
 @app.route('/settings', methods=['GET', 'POST'])
+@login_required
 def profile_settings():
-    if 'user_email' not in session:
-        flash("You must be logged in to view settings.", "error")
-        return redirect(url_for('login'))
-
-    user = User.query.filter_by(email=session['user_email']).first()
-    if not user:
-        flash("User not found.", "error")
-        return redirect(url_for('home'))
+    user = current_user
 
     # 1. Profile Update Form (for username/avatar)
     profile_form = ProfileSettingsForm(obj=user)
@@ -382,7 +353,6 @@ def profile_settings():
         # --- NEW FIX: Avatar Mapping and Saving ---
         selected_avatar_name = profile_form.avatar.data
 
-        # NOTE: You must have a defined URL mapping for each icon option
         avatar_mapping = {
             'Male Icon': url_for('static', filename='avatars/male_icon.png'),
             'Female Icon': url_for('static', filename='avatars/female_icon.png'),
@@ -392,13 +362,11 @@ def profile_settings():
         if selected_avatar_name in avatar_mapping:
             user.avatar = avatar_mapping[selected_avatar_name]
 
-        # --- END FIX ---
-
         db.session.commit()
         flash("Profile updated successfully! ✨", "success")
         return redirect(url_for('profile_settings'))
 
-    # --- Password Form Submission Logic (Kept for completeness, though likely not visible/used) ---
+    # --- Password Form Submission Logic (Kept for completeness) ---
     if password_form.validate_on_submit() and password_form.submit_password.data:
         # 1. Check if the current password is correct
         if not check_password_hash(user.password, password_form.current_password.data):
@@ -418,15 +386,10 @@ def profile_settings():
                            profile_form=profile_form,
                            password_form=password_form,
                            user=user,
-                           # --- NEW: Cache Buster variable passed on every render ---
-                           # Using the current timestamp ensures the avatar image source changes every time.
                            cache_buster=datetime.now().timestamp(),
                            hide_nav=True)
 
 
-# ----------------------------------------------------------------------
-# --- ADMIN & STATIC ROUTES (ASSESSMENT REMOVED) ---
-# ----------------------------------------------------------------------
 
 @app.route('/seed_db')
 def seed_db():
@@ -514,28 +477,42 @@ def seed_db():
 
     return redirect(url_for('community_dashboard'))
 
-
 @app.route('/admin')
+@login_required
 def admin_dashboard():
-    if session.get('user_role') != 'admin':
-        flash("Access denied. Admins only!", "error")
-        return redirect(url_for('home'))
+    if current_user.role != 'admin':
+        flash("Access denied.", "error")
+        return redirect(url_for('dashboard'))
 
-    users = User.query.all()
-    return render_template('admin.html', users=users)
+    # Fetch users segmented by role
+    clients = db.session.execute(db.select(User).filter_by(role='client')).scalars().all()
+    admins = db.session.execute(db.select(User).filter_by(role='admin')).scalars().all()
+    therapists = db.session.execute(db.select(User).filter_by(role='therapist')).scalars().all()
 
-
+    return render_template('admin.html',
+                           clients=clients,
+                           admins=admins,
+                           therapists=therapists,
+                           hide_nav=True
+                           )
 @app.route('/delete_user/<int:user_id>')
+@login_required
 def delete_user(user_id):
-    if session.get('user_role') != 'admin':
+    # Use current_user for authorization checks
+    if current_user.role != 'admin':
         flash("You are not authorized to perform this action.", "error")
         return redirect(url_for('home'))
 
     user = User.query.get(user_id)
     if user:
+        # Before deleting the user, delete related records (appointments, replies, discussions)
+        Appointment.query.filter_by(user_id=user.id).delete()
+        Reply.query.filter_by(user_id=user.id).delete()
+        Discussion.query.filter_by(user_id=user.id).delete()
+
         db.session.delete(user)
         db.session.commit()
-        flash("User deleted successfully.", "success")
+        flash("User and related data deleted successfully.", "success")
     else:
         flash(" User not found.", "error")
     return redirect(url_for('admin_dashboard'))
@@ -557,7 +534,10 @@ def stress():
 
 
 @app.route('/logout')
+@login_required  # Use Flask-Login's logout helper
 def logout():
+    from flask_login import logout_user
+    logout_user()
     session.clear()
     flash("👋 You’ve been logged out successfully.", "info")
     return redirect(url_for('home'))
@@ -569,65 +549,307 @@ def about():
 
 
 @app.route('/guidelines')
+@login_required
 def guidelines():
-    # You might want to ensure the user is logged in, but guidelines are often public.
-    # We will assume login is required for consistency.
-    if 'user_email' not in session:
-        flash("Please log in to view the guidelines.", "error")
-        return redirect(url_for('login'))
+    return render_template('guidelines.html', hide_nav=True)
 
-    return render_template('guidelines.html')
-
-
-@app.route('/request_appointment')
+# app.py (Updated request_appointment route to fetch real therapists)
+@app.route('/request_appointment', methods=['GET'])
+@login_required
 def request_appointment():
-    # You might want to ensure the user is logged in
-    if 'user_email' not in session:
-        flash("Please log in to schedule an appointment.", "error")
-        return redirect(url_for('login'))
+    # Fetch all users with the role 'therapist'
+    all_therapists = db.session.execute(
+        db.select(User).filter_by(role='therapist')
+    ).scalars().all()
 
-    return render_template('request_appointment.html', hide_nav=True)
+    # Generate date and time options (remains the same)
+    today = date.today()
+    date_options = []
+    for i in range(5):
+        d = today + timedelta(days=i)
+        value = d.strftime('%Y-%m-%d')
+        display = d.strftime('%A, %b %d')
+        date_options.append((value, display))
 
-@app.route('/view_appointments')
+    time_slots = ["10:00 AM", "11:30 AM", "2:00 PM", "4:30 PM", "6:00 PM"]
+
+    # Pass the real therapist objects
+    return render_template('request_appointment.html',
+                           dates=date_options,
+                           time_slots=time_slots,
+                           available_therapists=all_therapists, # <-- NOW USING REAL USERS
+                           hide_nav=True)
+@app.route('/view_appointments', methods=['GET', 'POST'])
+@login_required
 def view_appointments():
-    # This will be the page that shows the actual calendar/list of appointments
-    if 'user_email' not in session:
-        flash("Please log in.", "error")
-        return redirect(url_for('login'))
+    # 1. Handle POST Request (Data comes from request_appointment.html)
+    if request.method == 'POST':
+        # Retrieve and save the location and service type to the session
+        location = request.form.get('location')
+        service_type = request.form.get('service_type')
 
-    flash("Viewing appointments page (Placeholder).", "info")
-    return redirect(url_for('community_dashboard')) # Temporary redirect
+        if location and service_type:
+            session['booking_preselection'] = {
+                'location': location,
+                'service_type': service_type
+            }
+        else:
+            flash("Please select both a location and a service type.", "error")
+            return redirect(url_for('request_appointment'))
 
-# Route for displaying the review page
-@app.route('/appointment_review')
+    # 2. Check if pre-selection data exists (if arriving via GET or via POST)
+    preselection = session.get('booking_preselection')
+    if not preselection:
+        flash("Please select a location and service type first.", "error")
+        return redirect(url_for('request_appointment'))
+
+    # 3. Define Date Constraints
+    min_date = date.today().strftime('%Y-%m-%d')
+    max_date_obj = date(2026, 12, 31)  # Example for max date
+    max_date = max_date_obj.strftime('%Y-%m-%d')
+
+    # 4. Mock Data for Therapists (Filtered by service_type)
+    if preselection['service_type'] == 'therapy':
+        available_therapists = [{'id': 1, 'name': 'Dr. Alice Smith (Therapy)'}]
+    elif preselection['service_type'] == 'psychiatry':
+        available_therapists = [{'id': 2, 'name': 'Mr. Bob Johnson (Psychiatry)'}]
+    elif preselection['service_type'] == 'substance':
+        available_therapists = [{'id': 3, 'name': 'Ms. Clara Lee (Substance Counseling)'}]
+    else:
+        available_therapists = [{'id': 99, 'name': 'Unknown Provider'}]
+
+        # 5. Mock Time Slots
+    time_slots_for_today = ["10:00 AM", "11:30 AM", "2:00 PM", "4:30 PM", "6:00 PM"]
+
+    return render_template('view_appointments.html',
+                           hide_nav=True,
+                           min_date=min_date,
+                           max_date=max_date,
+                           available_therapists=available_therapists,
+                           time_slots_for_today=time_slots_for_today,
+                           location=preselection['location'],
+                           service_type=preselection['service_type'])
+
+
+@app.route('/appointment_review', methods=['POST'])
 @login_required
 def appointment_review():
-    # In a real app, you would fetch selected appointment data here
-    return render_template('appointment_review.html', hide_nav=True)
+    date_val = request.form.get('date')
+    time = request.form.get('time')
+    therapist_id = request.form.get('therapist') # This is the ID now, not a display name
+    note = request.form.get('note', 'No note provided.')
 
-# Route for handling the final confirmation/booking logic
+    # Server-side validation check
+    if not date_val or not time or not therapist_id:
+        flash("Please select a date, time slot, and a therapist before reviewing.", "error")
+        return redirect(url_for('request_appointment'))
+
+    # Fetch the actual therapist user object using the ID
+    therapist = db.session.get(User, int(therapist_id))
+    if not therapist or therapist.role != 'therapist':
+        flash("Invalid therapist selected.", "error")
+        return redirect(url_for('request_appointment'))
+
+    # Save details to session temporarily, including the ID
+    session['booking_details'] = {
+        'date': date_val,
+        'time': time,
+        'therapist_id': therapist_id, # <-- CRITICAL: Save the ID
+        'therapist': therapist.username, # Save the username for display
+        'note': note
+    }
+
+    return render_template(
+        'appointment_review.html',
+        date=date_val,
+        time=time,
+        therapist=therapist.username, # Use username for display
+        note=note,
+        hide_nav=True,
+        user=current_user
+    )
+
+
+# app.py (REPLACE existing /confirm_appointment route)
+
 @app.route('/confirm_appointment', methods=['POST'])
 @login_required
 def confirm_appointment():
-    # *** FUTURE LOGIC: This is where you would call the calendar API/database to book the event ***
+    booking_details = session.pop('booking_details', None)
 
-    # Example: Fetching data from the form
-    location = request.form.get('location')
-    datetime_str = request.form.get('datetime')
+    if not booking_details:
+        flash("Appointment details lost. Please start booking again.", "error")
+        return redirect(url_for('request_appointment'))
 
-    # After successful booking:
-    flash(f"Appointment confirmed for {datetime_str} at {location}!", "success")
-    return redirect(url_for('appointment_success'))
+    # The booking details dictionary must now contain the therapist_id (a string ID)
+    therapist_id_str = booking_details.get('therapist_id')
 
-@app.route('/appointment_success')
+    if not therapist_id_str:
+        flash("Therapist information missing. Please re-book.", "error")
+        return redirect(url_for('request_appointment'))
+
+    therapist = db.session.get(User, int(therapist_id_str))
+
+    # Save the confirmed appointment to the database
+    new_appointment = Appointment(
+        client_id=current_user.id,  # Save client_id (The one who booked)
+        therapist_id=therapist.id,  # Save therapist_id
+        date=booking_details['date'],
+        time=booking_details['time'],
+        note=booking_details['note'],
+        status='Pending'  # Default status
+    )
+
+    db.session.add(new_appointment)
+    db.session.commit()
+
+    flash(
+        f"Appointment requested for {booking_details['date']} at {booking_details['time']} with {therapist.username}. Awaiting approval.",
+        "success")
+    return redirect(url_for('my_appointments'))
+
+@app.route('/appointment_success', methods=['GET', 'POST'])  # <--- ADDED methods=['GET', 'POST']
 @login_required
 def appointment_success():
-    # Final page in the booking flow
-    return render_template('appointment_success.html', hide_nav=True)
+    # 1. Retrieve the booking details saved in the session
+    booking_details = session.pop('booking_details', None)
+    preselection = session.pop('booking_preselection', None)
+
+    # 2. Add real booking logic here (e.g., saving to database, sending email)
+
+    # 3. Handle case where session details are missing (direct navigation)
+    if not booking_details or not preselection:
+        flash("Booking details not found. Please start a new appointment.", "warning")
+        return redirect(url_for('request_appointment'))
+
+    # Combine data for success page display
+    all_details = {**preselection, **booking_details}
+
+    return render_template('appointment_success.html',
+                           date=all_details['date'],
+                           time=all_details['time'],
+                           location=all_details['location'],
+                           hide_nav=True)
+# --- NEW ROUTE for Viewing Appointments ---
+@app.route('/my_appointments')
+@login_required
+def my_appointments():
+    # Fetch appointments for the current user, ordered by date and time
+    user_appointments = db.session.execute(
+        db.select(Appointment)
+        .filter_by(client_id=current_user.id) # <-- FIX: Check client_id, not user_id
+        # NOTE: Sorting by string date/time can be unreliable. For production, use datetime objects.
+        .order_by(Appointment.date, Appointment.time)
+    ).scalars().all()
+
+    return render_template('my_appointments.html',
+                           appointments=user_appointments,
+                           hide_nav=True)
+
+# --- FIX: Renamed function to match 'admin_add_therapist' endpoint and use new form/template ---
+@app.route('/admin/add_therapist', methods=['GET', 'POST'])
+@login_required
+def admin_add_therapist(): # <-- Renamed to match the url_for() call!
+    if current_user.role != 'admin':
+        flash("Access denied.", "error")
+        return redirect(url_for('home'))
+
+    # Use the simple form for adding a therapist (must be defined in forms.py and imported!)
+    form = AddTherapistForm()
+
+    if form.validate_on_submit():
+        if User.query.filter_by(email=form.email.data).first():
+            flash("Email already registered.", "warning")
+            # Render the simple add_therapist.html template on failure
+            return render_template('add_therapist.html', form=form, title="Add Therapist", hide_nav=True)
+
+        # Check for unique username
+        if User.query.filter_by(username=form.username.data).first():
+            flash("That username is already taken. Please choose another.", "warning")
+            return render_template('add_therapist.html', form=form, title="Add Therapist", hide_nav=True)
+
+        hashed_pw = generate_password_hash(form.password.data)
+
+        new_therapist = User(
+            email=form.email.data,
+            password=hashed_pw,
+            username=form.username.data,
+            role='therapist',
+            # Use placeholders for non-essential client fields
+            age=99, gender='N/A', location='HQ',
+            avatar=url_for('static', filename='avatars/professional_icon.png') # Use a professional avatar
+        )
+
+        db.session.add(new_therapist)
+        db.session.commit()
+
+        flash(f"Therapist '{form.username.data}' created successfully!", "success")
+        return redirect(url_for('admin_dashboard'))
+
+    # Use the new, simple template for the form
+    return render_template('add_therapist.html', form=form, title="Add New Therapist", hide_nav=True)
+# --- END FIX ---
+
+
+# app.py (NEW Therapist Dashboard Route)
+@app.route('/therapist_dashboard')
+@login_required
+def therapist_dashboard():
+    # Authorization: Only therapists can view this
+    if current_user.role != 'therapist':
+        flash("Access denied. You must be a therapist to access this dashboard.", "error")
+        return redirect(url_for('home'))
+
+    # Fetch all appointments assigned to the current therapist
+    # Order by status (to show Pending appointments first), then by date/time
+    therapist_appointments = db.session.execute(
+        db.select(Appointment)
+        .filter_by(therapist_id=current_user.id)
+        .order_by(Appointment.status.desc(), Appointment.date, Appointment.time)
+    ).scalars().all()
+
+    return render_template('therapist_dashboard.html',
+                           appointments=therapist_appointments,
+                           user=current_user,
+                           hide_nav=True)
+
+
+# app.py (NEW Route to Update Appointment Status)
+@app.route('/appointment/update_status/<int:appointment_id>/<string:new_status>', methods=['POST'])
+@login_required
+def update_appointment_status(appointment_id, new_status):
+    # 1. Authorization Check
+    if current_user.role != 'therapist':
+        flash("You are not authorized to perform this action.", "error")
+        return redirect(url_for('home'))
+
+    appointment = db.session.get(Appointment, appointment_id)
+
+    # 2. Validation Checks
+    if not appointment:
+        flash("Appointment not found.", "error")
+        return redirect(url_for('therapist_dashboard'))
+
+    # Ensure the therapist is only managing their own appointments
+    if appointment.therapist_id != current_user.id:
+        flash("You are not authorized to manage this appointment.", "error")
+        return redirect(url_for('therapist_dashboard'))
+
+    valid_statuses = ['Accepted', 'Rejected']
+    if new_status not in valid_statuses:
+        flash("Invalid status provided.", "error")
+        return redirect(url_for('therapist_dashboard'))
+
+    # 3. Update Status and Commit
+    appointment.status = new_status
+    db.session.commit()
+
+    flash(f"Appointment status updated to '{new_status}' successfully.", "success")
+    return redirect(url_for('therapist_dashboard'))
 
 
 if __name__ == '__main__':
     with app.app_context():
-        # This will ensure the database and tables exist when the app starts.
+        # db.drop_all() # ONLY use this if you want to wipe the database
         db.create_all()
     app.run(debug=True)

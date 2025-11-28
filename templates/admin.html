@@ -1,21 +1,78 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="admin-container">
-    <h2>👑 Admin Dashboard</h2>
-    <p>Manage registered users for MindEase</p>
 
-    <!-- Search + Filter Controls -->
+    {# --- FIX 1: Move Logout to the top right --- #}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Admin Dashboard</h2>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">
+             Logout Admin
+        </a>
+    </div>
+    <p>Manage registered users for MindEase</p>
+    <hr>
+    {# --- END FIX 1 --- #}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <h3 class="mt-5">Therapist Management</h3>
+
+    {# --- FIX 2: Center the Add New Therapist Button --- #}
+    <div class="mb-4 text-center">
+        <h4>Registered Therapists ({{ therapists|length }})</h4>
+        <a href="{{ url_for('admin_add_therapist') }}" class="btn btn-success" style="width: 50%;">+ Add New Therapist</a>
+    </div>
+    {# --- END FIX 2 --- #}
+
+    <table class="admin-table" id="therapistTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="therapistTbody">
+            {% for user in therapists %}
+            <tr data-role="therapist" data-email="{{ user.email }}">
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    <a href="{{ url_for('delete_user', user_id=user.id) }}" class="delete-btn"
+                       onclick="return confirm('Are you sure you want to delete this Therapist?');">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="text-center">No therapists have been registered yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr class="my-5">
+
+    <h3>👥 Client & Admin Management</h3>
+
     <div class="filter-bar">
         <input type="text" id="searchInput" placeholder="🔍 Search users...">
         <select id="roleFilter">
-            <option value="all">All Roles</option>
+            <option value="all">All Roles (Client, Admin, Therapist)</option>
             <option value="client">Client</option>
             <option value="admin">Admin</option>
+            <option value="therapist">Therapist</option>
         </select>
     </div>
 
-    <!-- Users Table -->
-    <table class="admin-table">
+    <table class="admin-table" id="clientAdminTable">
         <thead>
             <tr>
                 <th>ID</th>
@@ -24,15 +81,26 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody id="userTable">
-            {% for user in users %}
-            <tr>
+        <tbody id="userTbody">
+            {% for user in clients %}
+            <tr data-role="client" data-email="{{ user.email }}">
                 <td>{{ user.id }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.role }}</td>
                 <td>
                     <a href="{{ url_for('delete_user', user_id=user.id) }}" class="delete-btn"
-                       onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+                       onclick="return confirm('Are you sure you want to delete this client?');">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+
+            {% for user in admins %}
+            <tr data-role="admin" data-email="{{ user.email }}">
+                <td>{{ user.id }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
+                <td>
+                    <span class="text-muted">Protected</span>
                 </td>
             </tr>
             {% endfor %}
@@ -40,28 +108,56 @@
     </table>
 </div>
 
-<!-- JavaScript for Search and Filter -->
 <script>
+    // ... (Your existing JavaScript filtering code remains here) ...
     const searchInput = document.getElementById('searchInput');
     const roleFilter = document.getElementById('roleFilter');
-    const tableRows = document.querySelectorAll('#userTable tr');
+
+    // Collect ALL rows from both tables for unified filtering
+    const therapistRows = document.querySelectorAll('#therapistTbody tr[data-role="therapist"]');
+    const userRows = document.querySelectorAll('#userTbody tr[data-role]');
+    const allRows = [...therapistRows, ...userRows];
 
     function filterUsers() {
         const searchTerm = searchInput.value.toLowerCase();
         const selectedRole = roleFilter.value.toLowerCase();
 
-        tableRows.forEach(row => {
-            const email = row.cells[1].textContent.toLowerCase();
-            const role = row.cells[2].textContent.toLowerCase();
+        allRows.forEach(row => {
+            // Check if the row is one of the "No therapists/clients" messages
+            if (!row.hasAttribute('data-role')) {
+                row.style.display = 'none'; // Hide empty message rows during filtering
+                return;
+            }
+
+            // Get data from data attributes for reliable filtering
+            const email = row.getAttribute('data-email').toLowerCase();
+            const role = row.getAttribute('data-role').toLowerCase();
 
             const matchesSearch = email.includes(searchTerm);
             const matchesRole = selectedRole === 'all' || role === selectedRole;
 
-            row.style.display = matchesSearch && matchesRole ? '' : 'none';
+            // Determine if the row should be shown
+            const shouldDisplay = matchesSearch && matchesRole;
+            row.style.display = shouldDisplay ? '' : 'none';
+
+            // Also ensure correct visibility of the parent table (for visual cleanup)
+            const parentTbody = row.closest('tbody');
+            if (parentTbody) {
+                // Check if any row in the parent tbody is visible
+                const hasVisibleRow = Array.from(parentTbody.querySelectorAll('tr[data-role]')).some(
+                    r => r.style.display !== 'none'
+                );
+                // Hide the whole table if no rows are visible and we're filtering by role
+                // (This is an optional aesthetic choice, but keeps things clean)
+                // parentTbody.closest('table').style.display = hasVisibleRow ? '' : 'none';
+            }
         });
     }
 
     searchInput.addEventListener('input', filterUsers);
     roleFilter.addEventListener('change', filterUsers);
+
+    // Initialize filter for consistency
+    document.addEventListener('DOMContentLoaded', filterUsers);
 </script>
 {% endblock %}

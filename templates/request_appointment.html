@@ -1,94 +1,52 @@
 {% extends "base.html" %}
 
-{% block title %}Schedule Appointment{% endblock %}
+{% block title %}Find Provider{% endblock %}
 
 {% block content %}
-<div class="appointment-page-wrapper py-5" style="min-height: 100vh; background-image: url('{{ url_for('static', filename='images/background.jpg') }}'); background-size: cover; background-position: center;">
+<div class="appointment-page-wrapper py-5" style="min-height: 100vh; background-image: url('{{ url_for('static', filename='images/background.jpg') }}'); background-size: cover; background-position: center; background-attachment: fixed;">
 
     <div class="container my-5">
         <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-7">
+            <div class="col-lg-7">
 
                 <div class="appointment-card p-4 p-md-5 border rounded shadow-lg"
-                     style="background-color: white; border-radius: 15px;">
+                     style="background-color: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
 
-                    <div class="text-center mb-5">
-                        <h1 style="font-size: 2rem; color: #4b0082; font-weight: 600;">Welcome!</h1>
-                    </div>
+                    <h2 class="text-center mb-4" style="color: #4b0082; font-weight: 700;">Find a Provider</h2>
+                    <p class="text-center mb-5 text-muted">Select your preferred location and service type to check availability.</p>
 
-                    <div class="mb-4 pb-3 border-bottom" style="text-align: left;">
-                        <h3 style="color: #5d5dff; font-weight: 500;">Select a date and time</h3>
-                        <small class="text-muted" style="font-size: 0.85em;">Appointments are in Eastern Standard Time (EST) 12:47 AM</small>
-                    </div>
+                    <form method="POST" action="{{ url_for('view_appointments') }}" id="provider-form">
 
-                    <div class="location-card-container border rounded p-3 mb-4"
-                         style="border-color: #5d5dff !important; box-shadow: 0 0 8px rgba(93, 93, 255, 0.2); transition: box-shadow 0.3s;">
-
-                        <div class="row align-items-center mb-3">
-                            <div class="col-auto me-3">
-                                <i class="fas fa-map-marked-alt fa-2x" style="color: #4169E1;"></i>
-                            </div>
-                            <div class="col" style="text-align: left;">
-                                <strong style="font-size: 1.1rem;">Mindful Care - FL, Virtual 1</strong>
-                                <div class="text-muted" style="font-size: 0.9rem;">(516) 505-7200</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-check-circle" style="color: #4CAF50;"></i>
-                            </div>
+                        <div class="mb-4">
+                            <label for="location_select" class="form-label fw-bold" style="color: #5d5dff;">Clinic Location</label>
+                            <select id="location_select" name="location" class="form-select form-select-lg" required
+                                    style="border: 1px solid #ddd; border-radius: 8px;">
+                                <option value="" disabled selected>Choose a clinic location</option>
+                                <option value="NY">New York, NY</option>
+                                <option value="LA">Los Angeles, CA</option>
+                                <option value="TX">Austin, TX</option>
+                            </select>
                         </div>
 
-                        <div class="date-picker-mockup d-flex align-items-center justify-content-between flex-wrap pt-3 border-top" style="font-size: 0.9rem;">
-
-                            <div class="month-selector d-flex align-items-center" style="font-weight: 600; color: #4b0082; cursor: pointer;">
-                                November 2025 <i class="fas fa-chevron-down ms-2"></i>
-                            </div>
-
-                            <div class="day-navigator d-flex align-items-center">
-                                <i class="fas fa-chevron-left mx-2 text-muted" style="cursor: pointer;"></i>
-                                <div class="day-list d-flex" style="gap: 10px;">
-                                    <span class="day-item text-muted">WED<br><strong>26</strong></span>
-                                    <span class="day-item text-muted">THU<br><strong>27</strong></span>
-                                    <span class="day-item text-muted">FRI<br><strong>28</strong></span>
-                                    <span class="day-item text-muted">SAT<br><strong>29</strong></span>
-                                    <span class="day-item active-day" style="color: #4169E1; font-weight: bold;">SUN<br><strong>30</strong></span>
-                                </div>
-                                <i class="fas fa-chevron-right mx-2" style="cursor: pointer;"></i>
-                            </div>
+                        <div class="mb-5">
+                            <label for="service_select" class="form-label fw-bold" style="color: #5d5dff;">Service Type</label>
+                            <select id="service_select" name="service_type" class="form-select form-select-lg" required
+                                    style="border: 1px solid #ddd; border-radius: 8px;">
+                                <option value="" disabled selected>Choose a service category</option>
+                                <option value="therapy">Therapy (Counseling)</option>
+                                <option value="psychiatry">Psychiatry (Medication Mgt)</option>
+                                <option value="substance">Substance Counseling</option>
+                            </select>
                         </div>
 
-                        <div class="text-center mt-4">
-                            <a href="{{ url_for('view_appointments') }}" class="btn appointment-btn"
-                               style="background: linear-gradient(to right, #9370DB, #4169E1); color: white; border: none; border-radius: 20px; padding: 8px 30px; font-weight: bold; text-decoration: none;">
-                                Show Available Appointments
-                            </a>
+                        <div class="mt-4 pt-4 border-top text-center">
+                            <button type="submit"
+                               class="btn btn-lg w-75 fw-bold"
+                               style="background: linear-gradient(to right, #6A5ACD, #4169E1); color: white; border: none; border-radius: 30px; padding: 12px 25px; transition: all 0.3s ease;">
+                                Continue to Scheduling &rarr;
+                            </button>
                         </div>
-                    </div>
-                    <div class="call-option border-bottom pb-4 mb-4 text-center" style="font-size: 1.1rem;">
-                        <i class="fas fa-phone-alt me-2" style="color: #4169E1;"></i>
-                        Call <a href="tel:5165057200" style="color: #4169E1; text-decoration: none; font-weight: 600;">(516) 505-7200</a> for an appointment
-                    </div>
-
-
-                    <div class="location-block border rounded p-3 mb-2"
-                         style="border-color: #ddd !important; transition: border-color 0.3s;">
-
-                        <div class="row align-items-center">
-                            <div class="col-auto me-3">
-                                <i class="fas fa-headset fa-2x" style="color: #4169E1;"></i>
-                            </div>
-                            <div class="col" style="text-align: left;">
-                                <strong style="font-size: 1.1rem;">Mindful Care - FL, Virtual 2</strong>
-                                <div class="text-muted" style="font-size: 0.9rem;">(516) 505-7200</div>
-                            </div>
-                            <div class="col-auto">
-                                <a href="{{ url_for('view_appointments') }}" class="btn btn-outline-primary btn-sm"
-                                   style="border-radius: 20px; font-weight: bold;">
-                                    Select
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
+                    </form>
                 </div>
             </div>
         </div>
