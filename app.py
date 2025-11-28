@@ -300,7 +300,6 @@ def create_discussion():
 @app.route('/discussion/<int:discussion_id>', methods=['GET', 'POST'])
 @login_required
 def view_discussion(discussion_id):
-    current_user = current_user
     discussion = Discussion.query.get_or_404(discussion_id)
 
     form = ReplyForm()
