@@ -494,6 +494,8 @@ def admin_dashboard():
                            therapists=therapists,
                            hide_nav=True
                            )
+
+
 @app.route('/delete_user/<int:user_id>')
 @login_required
 def delete_user(user_id):
@@ -504,18 +506,35 @@ def delete_user(user_id):
 
     user = User.query.get(user_id)
     if user:
-        # Before deleting the user, delete related records (appointments, replies, discussions)
-        Appointment.query.filter_by(user_id=user.id).delete()
-        Reply.query.filter_by(user_id=user.id).delete()
-        Discussion.query.filter_by(user_id=user.id).delete()
+        # Before deleting the user, delete related records.
 
+        # 1. DELETE APPOINTMENTS REQUESTED BY THIS USER (CLIENT)
+        # Use 'client_id' as defined in your Appointment model
+        Appointment.query.filter_by(client_id=user.id).delete(synchronize_session='fetch')
+
+        # 2. CLEAR APPOINTMENTS ASSIGNED TO THIS USER (THERAPIST)
+        # If the user is a therapist, clear their ID from assigned appointments
+        if user.role == 'therapist':
+            Appointment.query.filter_by(therapist_id=user.id).update(
+                {'therapist_id': None},
+                synchronize_session='fetch'
+            )
+
+        # 3. DELETE RELATED REPLIES
+        Reply.query.filter_by(user_id=user.id).delete(synchronize_session='fetch')
+
+        # 4. DELETE RELATED DISCUSSIONS
+        Discussion.query.filter_by(user_id=user.id).delete(synchronize_session='fetch')
+
+        # Delete the user itself
         db.session.delete(user)
         db.session.commit()
+
         flash("User and related data deleted successfully.", "success")
     else:
         flash(" User not found.", "error")
-    return redirect(url_for('admin_dashboard'))
 
+    return redirect(url_for('admin_dashboard'))
 
 @app.route('/depression')
 def depression():

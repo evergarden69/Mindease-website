@@ -1631,28 +1631,44 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
 }
 
 /* Specific Therapist Dashboard Container for dark text */
+/* --- CONSOLIDATED & FINAL THERAPIST DASHBOARD STYLES --- */
 .therapist-dashboard-container {
+    width: 95%; /* Make it responsive for mobile */
     max-width: 1000px;
     margin: 60px auto;
     padding: 40px;
-    background: rgba(255, 255, 255, 0.95); /* Nearly opaque white background */
+    /* HIGHER OPACITY BACKGROUND for max visibility */
+    background: rgba(255, 255, 255, 0.98) !important;
     border-radius: 20px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    color: #333; /* Crucial: Dark text color */
-}
-
-.data-table th, .data-table td {
-    color: #333; /* Dark Text for Table Cells */
-}/* Override .admin-container for better Admin Dashboard visibility too */
-.admin-container {
-    /* Use dark text by default inside the container */
-    color: #333;
-    /* Remove white background */
-    background: rgba(255, 255, 255, 0.95);
-}
-
-/* Fix Admin Table Text Color to Dark */
-.admin-table th, .admin-table td {
-    /* Override the conflicting white text color */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    /* FORCE TEXT COLOR TO DARK on the container itself */
     color: #333 !important;
+}
+
+/* Force ALL nested text elements to dark, including headers, paragraphs, and links */
+/* This is crucial to override inherited white text from the base template */
+.therapist-dashboard-container h1,
+.therapist-dashboard-container h2,
+.therapist-dashboard-container h3,
+.therapist-dashboard-container p,
+.therapist-dashboard-container a,
+.therapist-dashboard-container span {
+    color: #333 !important;
+}
+
+/* Ensure table text is visible for both dashboards */
+.data-table th, .data-table td {
+    color: #333 !important;
+}
+
+/* Fix for the flash message box text color */
+.alert-success, .alert-warning {
+    color: #000 !important; /* Force dark text on alerts for better contrast */
+}
+
+/* --- LOGOUT BUTTON FIX (Removes unwanted gradient) --- */
+.btn-danger {
+    background-image: none !important;
+    background-color: #dc3545 !important; /* Standard red */
+    border-color: #dc3545 !important;
 }
