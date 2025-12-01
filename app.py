@@ -416,9 +416,9 @@ def profile_settings():
         selected_avatar_name = profile_form.avatar.data
 
         avatar_mapping = {
-            'Male Icon': url_for('static', filename='avatars/male_icon.png'),
-            'Female Icon': url_for('static', filename='avatars/female_icon.png'),
-            'Neutral Icon': url_for('static', filename='avatars/neutral_icon.png'),
+            'Male Icon': url_for('static', filename='images/male.png'),
+            'Female Icon': url_for('static', filename='images/female.png'),
+            'Neutral Icon': url_for('static', filename='images/neutral.png'),
         }
 
         if selected_avatar_name in avatar_mapping:

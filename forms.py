@@ -126,12 +126,10 @@ class ProfileSettingsForm(FlaskForm):
 
     # You will need to define image choices for the avatar selector
     AVATAR_CHOICES = [
-        ('/static/images/neutral.png', 'Neutral Icon'),
-        ('/static/images/male.png', 'Male Icon'),
-        ('/static/images/female.png', 'Female Icon'),
-        # Add more if you have them!
+        ('Neutral Icon', 'Neutral Icon'),  # Match key in app.py
+        ('Male Icon', 'Male Icon'),  # Match key in app.py
+        ('Female Icon', 'Female Icon'),  # Match key in app.py
     ]
-
     avatar = SelectField('Profile Picture', choices=AVATAR_CHOICES)
 
     submit = SubmitField('Update Profile')

@@ -14,7 +14,6 @@
 
     <div style="text-align: center; margin-bottom: 25px;">
         {# Display User Avatar #}
-        {# --- CRITICAL FIX: The style attributes were outside the closing bracket of the <img> tag. --- #}
         <img src="{{ user.avatar }}?{{ cache_buster }}"
              alt="{{ user.username }} avatar"
              class="user-settings-avatar"
@@ -22,6 +21,8 @@
 
         <p style="margin-top: 10px; font-weight: bold;">Current User: {{ user.username }}</p>
     </div>
+
+    <h3 style="color: #4b0082; margin-top: 40px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Update Profile</h3>
 
     <form method="POST" action="{{ url_for('profile_settings') }}">
         {{ profile_form.hidden_tag() }}
@@ -42,19 +43,51 @@
             {% endfor %}
         </div>
 
-        {# FIX: Separating the buttons and applying the gradient styling as intended #}
         <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 25px;">
-
-            {# LOGOUT BUTTON (As a link with custom gradient styling) #}
+            {# LOGOUT BUTTON (Kept as a simple link for convenience) #}
             <a href="{{ url_for('logout') }}" class="btn btn-secondary" style="width: 50%; background: linear-gradient(to right, #9370DB, #6A5ACD); color: white; border: none; padding: 10px 0; border-radius: 5px; text-align: center; text-decoration: none; font-weight: bold;">
                 Logout
             </a>
 
-            {# UPDATE PROFILE BUTTON (As the submit button with custom gradient styling) #}
-            <button type="submit" class="btn btn-primary" style="width: 50%; background: linear-gradient(to right, #6A5ACD, #4169E1); color: white; border: none; padding: 10px 0; border-radius: 5px; font-weight: bold;">
-                Update Profile
-            </button>
+            {# UPDATE PROFILE BUTTON (Must use the submit field from profile_form) #}
+            {{ profile_form.submit(class="btn btn-primary", style="width: 50%; background: linear-gradient(to right, #6A5ACD, #4169E1); color: white; border: none; padding: 10px 0; border-radius: 5px; font-weight: bold;") }}
         </div>
+    </form>
+
+    <hr style="margin: 40px 0; border-top: 1px solid #eee;">
+
+    <h3 style="color: #4b0082; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Change Password</h3>
+
+    <form method="POST" action="{{ url_for('profile_settings') }}">
+        {{ password_form.hidden_tag() }}
+
+        <div class="form-group mb-3">
+            <label for="current_password" class="form-label">Current Password</label>
+            {{ password_form.current_password(class="form-control", style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;") }}
+            {% for error in password_form.current_password.errors %}
+                <span class="text-danger" style="color: red; font-size: 0.9em;">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="new_password" class="form-label">New Password</label>
+            {{ password_form.new_password(class="form-control", style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;") }}
+            {% for error in password_form.new_password.errors %}
+                <span class="text-danger" style="color: red; font-size: 0.9em;">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="form-group mb-4">
+            <label for="confirm_password" class="form-label">Confirm New Password</label>
+
+            {{ password_form.confirm_new_password(class="form-control", style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;") }}
+
+            {% for error in password_form.confirm_new_password.errors %}
+                <span class="text-danger" style="color: red; font-size: 0.9em;">{{ error }}</span>
+            {% endfor %}
+        </div>
+        {# SUBMIT PASSWORD BUTTON #}
+        {{ password_form.submit_password(class="btn btn-primary w-100", style="background: linear-gradient(to right, #6A5ACD, #4169E1); color: white; border: none; padding: 10px 0; border-radius: 5px; font-weight: bold;") }}
     </form>
 
 </div>

@@ -2,19 +2,20 @@
 {% block content %}
 <div class="admin-container">
 
-    {# --- FIX 1: Move Logout to the top right & Center Dashboard Title --- #}
-    <div class="d-flex justify-content-end align-items-center mb-3">
-        {# The button with btn-sm is already small #}
-        <a href="{{ url_for('logout') }}" class="btn btn-danger **btn-sm**">
-             Logout Admin
-        </a>
-    </div>
+<div class="row align-items-center mb-3">
+        <div class="col">
+             <h2>Admin Dashboard</h2>
+        </div>
 
-    {# NEW: Center the Admin Dashboard text in its own row/div #}
-    <h2 class="**text-center**">Admin Dashboard</h2>
+        {# Logout button isolated to its minimal width on the right #}
+        <div class="col-auto">
+            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">
+                 Logout Admin
+            </a>
+        </div>
+    </div>
     <p class="**text-center**">Manage registered users for MindEase</p>
     <hr>
-    {# --- END FIX 1 --- #}
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
