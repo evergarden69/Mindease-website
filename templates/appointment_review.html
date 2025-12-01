@@ -38,7 +38,7 @@
                         <p class="mb-0 text-muted">{{ note if note != 'No note provided.' else 'No specific note was provided.' }}</p>
                     </div>
 
-                    <form method="POST" action="{{ url_for('appointment_success') }}">
+                    <form method="POST" action="{{ url_for('confirm_appointment') }}">
                         <div class="mt-4 pt-4 border-top text-center">
                             <button type="submit"
                                class="btn btn-lg w-75 fw-bold"

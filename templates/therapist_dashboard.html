@@ -1,15 +1,29 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="therapist-dashboard-container">
+<div class="dashboard-container">
 
-    {# --- NEW HEADER WITH LOGOUT BUTTON --- #}
+    {# --- OPTIMIZED HEADER WITH BUTTONS FIX (START) --- #}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="dashboard-header">Hello, Dr. {{ user.username }} 🩺</h2>
 
-    <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm" style="font-size: 0.8rem;">            Logout Therapist
-        </a>
+        <div class="d-flex align-items-center">
+
+            {# Settings Button (Matching Client Dashboard Style) #}
+            <a href="{{ url_for('therapist_settings') }}"
+               class="btn btn-sm btn-light me-2"
+               style="border: 1px solid #ccc; color: #6A5ACD;">
+                Settings
+            </a>
+
+            {# Logout Button (Using a primary color for distinction) #}
+            <a href="{{ url_for('logout') }}"
+               class="btn btn-sm btn-primary"
+               style="background-color: #6A5ACD; border-color: #6A5ACD;">
+                Logout
+            </a>
+        </div>
     </div>
-    {# --- END NEW HEADER --- #}
+    {# --- OPTIMIZED HEADER WITH BUTTONS FIX (END) --- #}
 
     <p class="text-muted">Review and manage your pending client appointments.</p>
 
@@ -25,63 +39,85 @@
 
     <h3>🗓Assigned Appointments ({{ appointments|length }})</h3>
 
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Client Name</th>
-                <th>Client Email</th>
-                <th>Note/Reason</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for appt in appointments %}
-            <tr>
-                <td>{{ appt.date }}</td>
-                <td>{{ appt.time }}</td>
-                <td>{{ appt.client.username }}</td>
-                <td><a href="mailto:{{ appt.client.email }}">{{ appt.client.email }}</a></td>
-                <td class="note-content">{{ appt.note }}</td>
+    {% if appointments %}
+        {# --- POPULATED TABLE --- #}
+        <table class="data-table table table-hover">
+            <thead>
+                <tr>
+                    {# Combined Date and Time #}
+                    <th>Date & Time</th>
+                    {# Combined Name and Email #}
+                    <th>Client</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appt in appointments %}
+                <tr>
+                    {# 1. Combined Date & Time #}
+                    <td>
+                        <span class="d-block">{{ appt.date }}</span>
+                        <span class="text-muted small">{{ appt.time }}</span>
+                    </td>
 
-                <td>
-                    {% if appt.status == 'Pending' %}
-                        <span class="badge bg-warning text-dark">{{ appt.status }}</span>
-                    {% elif appt.status == 'Accepted' %}
-                        <span class="badge bg-success">{{ appt.status }}</span>
-                    {% elif appt.status == 'Rejected' %}
-                        <span class="badge bg-danger">{{ appt.status }}</span>
-                    {% endif %}
-                </td>
+                    {# 2. Combined Client Name & Email #}
+                    <td>
+                        <strong>{{ appt.client.username }}</strong>
+                        <br>
+                        <a href="mailto:{{ appt.client.email }}" class="small">{{ appt.client.email }}</a>
+                    </td>
 
-                <td class="action-buttons">
-                    {% if appt.status == 'Pending' %}
-                        <form method="POST" action="{{ url_for('update_appointment_status', appointment_id=appt.id, new_status='Accepted') }}" style="display:inline;">
-                            <button type="submit" class="btn btn-sm btn-success"
-                                    onclick="return confirm('Accept this appointment with {{ appt.client.username }}?');">
-                                ✅ Accept
-                            </button>
-                        </form>
+                    {# 3. Note/Reason Snippet #}
+                    <td class="note-content">
+                        {# Display note and consider adding a 'Read More' in CSS/JS for long notes #}
+                        {{ appt.note|truncate(50, True, '...') }}
+                    </td>
 
-                        <form method="POST" action="{{ url_for('update_appointment_status', appointment_id=appt.id, new_status='Rejected') }}" style="display:inline;">
-                            <button type="submit" class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Reject this appointment with {{ appt.client.username }}?');">
-                                ❌ Reject
-                            </button>
-                        </form>
-                    {% else %}
-                        <span class="text-muted small">Status Finalized</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="7" class="text-center">You have no appointments scheduled at this time.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    {# 4. Status #}
+                    <td>
+                        {% if appt.status == 'Pending' %}
+                            <span class="badge bg-warning text-dark">{{ appt.status }}</span>
+                        {% elif appt.status == 'Accepted' %}
+                            <span class="badge bg-success">{{ appt.status }}</span>
+                        {% elif appt.status == 'Rejected' %}
+                            <span class="badge bg-danger">{{ appt.status }}</span>
+                        {% endif %}
+                    </td>
+
+                    {# 5. Action Buttons #}
+                    <td class="action-buttons">
+                        {% if appt.status == 'Pending' %}
+                            <form method="POST" action="{{ url_for('update_appointment_status', appointment_id=appt.id, new_status='Accepted') }}" style="display:block; margin-bottom: 5px;">
+                                <button type="submit" class="btn btn-sm btn-success w-100"
+                                        onclick="return confirm('Accept this appointment with {{ appt.client.username }}?');">
+                                    ✅ Accept
+                                </button>
+                            </form>
+
+                            <form method="POST" action="{{ url_for('update_appointment_status', appointment_id=appt.id, new_status='Rejected') }}" style="display:block;">
+                                <button type="submit" class="btn btn-sm btn-danger w-100"
+                                        onclick="return confirm('Reject this appointment with {{ appt.client.username }}?');">
+                                    ❌ Reject
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="text-muted small">Status Finalized</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        {# --- EMPTY STATE --- #}
+        <div class="text-center p-5 border rounded bg-light mt-3">
+            <h4 class="text-secondary mb-3">All clear, Dr. {{ user.username }}!</h4>
+            <p class="lead">You currently have no client appointments assigned to you.</p>
+            <p class="text-muted small">Check back soon for new bookings.</p>
+        </div>
+    {% endif %}
+
 </div>
 {% endblock %}

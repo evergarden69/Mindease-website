@@ -27,11 +27,11 @@
                         <div class="mb-4">
                             <label for="therapist_select" class="form-label fw-bold" style="color: #4b0082;">Select Therapist:</label>
                             <select id="therapist_select" name="therapist" class="form-select form-select-lg" required
-                                    style="border: 1px solid #ddd; border-radius: 8px;">
-                                <option value="" disabled selected>Select a mental health professional</option>
-                                {% for therapist in available_therapists %}
-                                    <option value="{{ therapist.id }}">{{ therapist.name }}</option>
-                                {% endfor %}
+                            style="border: 1px solid #ddd; border-radius: 8px;">
+                            <option value="" disabled selected>Select a mental health professional</option>
+                            {% for therapist in available_therapists %}
+                             <option value="{{ therapist.id }}">Dr. {{ therapist.username }}</option>
+                            {% endfor %}
                             </select>
                         </div>
 
@@ -55,24 +55,20 @@
 
                                 <h5 class="slot-header mt-1 mb-3 text-muted">Initial Slots Available (Select Date to Refresh)</h5>
 
-                                <div class="d-flex flex-wrap gap-2 mb-4">
+                                <div class="d-flex flex-wrap gap-2 mb-4 time-slot-buttons">
                                     {% if time_slots_for_today %}
                                         {% for slot in time_slots_for_today %}
-                                            <button type="button"
-                                                    class="slot-btn btn btn-sm"
-                                                    data-time="{{ slot }}"
-                                                    onclick="selectTime(this)">
+                                            <input type="radio" id="slot_initial_{{ loop.index }}" name="time" value="{{ slot }}" class="d-none slot-radio" required>
+                                            <label for="slot_initial_{{ loop.index }}" class="slot-btn btn btn-sm" role="button">
                                                 {{ slot }}
-                                            </button>
+                                            </label>
                                         {% endfor %}
                                     {% else %}
                                         <p class="text-info">Please select a date above to see real-time available slots.</p>
                                     {% endif %}
                                 </div>
                             </div>
-                            <input type="hidden" id="selected_time" name="time" required>
-                        </div>
-
+                            </div>
                         <div class="mb-5">
                             <label for="appointment_note" class="form-label fw-bold" style="color: #4b0082;">Note (Optional):</label>
                             <textarea id="appointment_note" name="note" class="form-control" rows="3" placeholder="I prefer to discuss anxiety..." style="border-radius: 8px;"></textarea>
@@ -109,14 +105,14 @@
 }
 
 /* Hover effect */
-.slot-btn:hover:not(.slot-selected) {
+.slot-btn:hover {
     background-color: #e6e6fa; /* Lavender background */
     border-color: #6A5ACD;
     transform: translateY(-1px);
 }
 
-/* Selected slot styling */
-.slot-selected {
+/* Selected slot styling (Applied to the LABEL when the associated RADIO is checked) */
+.slot-radio:checked + .slot-btn {
     background: linear-gradient(to right, #6A5ACD, #4169E1);
     color: white;
     border-color: #4169E1;
@@ -136,68 +132,59 @@
 
 <script>
     const form = document.getElementById('slot-form');
-    const selectedTimeInput = document.getElementById('selected_time');
     const reviewButton = document.getElementById('review_button');
     const dateInput = document.getElementById('appointment_date');
     const therapistSelect = document.getElementById('therapist_select');
+    const timeContainer = document.getElementById('time_slots_container');
 
     // Define the mock time slots within the JavaScript for re-use
     const MOCK_TIME_SLOTS = ["10:00 AM", "11:30 AM", "2:00 PM", "4:30 PM", "6:00 PM", "7:00 PM"];
 
+    // 1. Check validity based on all required fields
     function checkFormValidity() {
-        const isValid = dateInput.value && therapistSelect.value && selectedTimeInput.value;
+        // Checks if any radio button named 'time' is checked (i.e., has a value to submit)
+        const isTimeSelected = timeContainer.querySelector('input[name="time"]:checked');
+        const isValid = dateInput.value && therapistSelect.value && isTimeSelected;
         reviewButton.disabled = !isValid;
         reviewButton.style.opacity = isValid ? '1' : '0.5';
     }
 
-    function selectTime(button) {
-        document.querySelectorAll('.slot-btn').forEach(btn => {
-            btn.classList.remove('slot-selected');
-        });
-
-        button.classList.add('slot-selected');
-        selectedTimeInput.value = button.getAttribute('data-time');
-        checkFormValidity();
-    }
-
+    // 2. Function to redraw slots (using radio buttons)
     function fetchAvailableSlots(selectedDate) {
-        // Clear previous time selection
-        selectedTimeInput.value = '';
-
-        const container = document.getElementById('time_slots_container');
-
-        // --- START: FIX FOR RENDERING SLOTS ---
-
+        // Redraws slots, naturally unchecking the previously selected one (since names are shared)
         let html = `
             <h5 class="slot-header mt-1 mb-3" style="color:#5d5dff;">Available Slots for ${selectedDate}</h5>
-            <div class="d-flex flex-wrap gap-2 mb-4">
+            <div class="d-flex flex-wrap gap-2 mb-4 time-slot-buttons">
         `;
 
-        // 1. Loop through the mock slots and create buttons
-        MOCK_TIME_SLOTS.forEach(slot => {
+        // Generate radio buttons
+        MOCK_TIME_SLOTS.forEach((slot, index) => {
+            const radioId = 'slot_' + selectedDate + '_' + index;
             html += `
-                <button type="button"
-                        class="slot-btn btn btn-sm"
-                        data-time="${slot}"
-                        onclick="selectTime(this)">
-                    ${slot}
-                </button>
+                <input type="radio" id="${radioId}" name="time" value="${slot}" class="d-none slot-radio" required>
+                <label for="${radioId}" class="slot-btn btn btn-sm" role="button">${slot}</label>
             `;
         });
 
         html += `</div>`;
-
-        // 2. Inject the new HTML content
-        container.innerHTML = html;
-
-        // --- END: FIX FOR RENDERING SLOTS ---
-
-        checkFormValidity();
+        timeContainer.innerHTML = html;
+        checkFormValidity(); // Button is disabled because no time is selected yet
     }
 
-    // Event listeners to check validity upon change
-    dateInput.addEventListener('change', checkFormValidity);
+    // 3. Event listeners to check validity upon change
+    // When the date changes, fetchAvailableSlots runs, which calls checkFormValidity and disables the button.
+    dateInput.addEventListener('change', function() {
+        fetchAvailableSlots(this.value);
+    });
     therapistSelect.addEventListener('change', checkFormValidity);
+
+    // 4. Listen for changes inside the time slot container (when a radio is selected)
+    timeContainer.addEventListener('change', function(event) {
+        // The change event fires when a radio button is checked
+        if (event.target.name === 'time') {
+            checkFormValidity();
+        }
+    });
 
     // Initial check on load
     document.addEventListener('DOMContentLoaded', checkFormValidity);

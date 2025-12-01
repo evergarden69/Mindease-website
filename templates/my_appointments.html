@@ -1,85 +1,157 @@
 {% extends "base.html" %}
 
-{% block title %}My Appointments{% endblock %}
+{% block title %}My Scheduled Appointments{% endblock %}
 
 {% block content %}
 <div class="appointment-page-wrapper py-5" style="min-height: 100vh; background-image: url('{{ url_for('static', filename='images/background.jpg') }}'); background-size: cover; background-position: center;">
-    
+
     <div class="container my-5">
         <div class="row justify-content-center">
-            <div class="col-lg-10">
-                
-                <div class="appointment-list-card p-4 p-md-5 border rounded shadow-lg" 
+            <div class="col-md-9 col-lg-8">
+
+                <div class="mb-3">
+                    <a href="{{ url_for('community_dashboard') }}" class="text-decoration-none fw-bold"
+                       style="color: #4b0082;">
+                        &larr; Back to Dashboard
+                    </a>
+                </div>
+                <div class="appointment-card p-5 border rounded shadow-lg"
                      style="background-color: white; border-radius: 15px;">
-                    
-                    <h2 class="text-center mb-5" style="color: #4b0082; font-weight: 600;">My Scheduled Appointments</h2>
+
+                    <h2 class="mb-4 text-center" style="color: #4b0082; font-weight: 600;">My Scheduled Appointments</h2>
 
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
-                            <div class="mb-4">
+                            <div class="flash-messages mb-3">
                                 {% for category, message in messages %}
-                                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
                                 {% endfor %}
                             </div>
                         {% endif %}
                     {% endwith %}
 
-                    {% if appointments %}
-                        {% for appointment in appointments %}
-                            <div class="card mb-3 appointment-item shadow-sm">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        
-                                        <div class="col-md-4">
-                                            <h5 class="mb-1" style="color: #5d5dff;">
-                                                <i class="bi bi-calendar-check me-2"></i> {{ appointment.date }}
-                                            </h5>
-                                            <p class="mb-0 text-muted">{{ appointment.time }}</p>
-                                        </div>
-                                        
-                                        <div class="col-md-4">
-                                            <div class="fw-bold" style="color: #4b0082;">{{ appointment.therapist }}</div>
-                                            <p class="mb-0 small text-success">Confirmed</p>
-                                        </div>
-                                        
-                                        <div class="col-md-4 text-md-end mt-2 mt-md-0">
-                                            <button type="button" class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#noteModal{{ appointment.id }}">
-                                                View Note
-                                            </button>
-                                            <a href="#" class="btn btn-sm btn-danger disabled">Cancel</a>
-                                        </div>
-                                        
-                                    </div>
-                                </div>
+                    {% for appointment in appointments %}
+                        <div class="d-flex align-items-center justify-content-between p-3 mb-3 border rounded"
+                             style="background-color: #f8f8ff;"
+                             data-appointment-id="{{ appointment.id }}">
+
+                            <div class="appointment-info">
+                                <p class="mb-0 fw-bold">{{ appointment.date }}</p>
+                                <p class="mb-1">{{ appointment.time }}</p>
+
+                                <p class="mb-0 text-primary">
+                                    <span class="fw-bold">
+                                        {{ appointment.therapist.username }}
+                                    </span>
+                                </p>
+
+                                <span class="badge
+                                    {% if appointment.status == 'Confirmed' or appointment.status == 'Accepted' %}bg-success
+                                    {% elif appointment.status == 'Rejected' or appointment.status == 'Cancelled' %}bg-danger
+                                    {% else %}bg-secondary
+                                    {% endif %}">
+                                    {{ appointment.status }}
+                                </span>
                             </div>
 
-                            <div class="modal fade" id="noteModal{{ appointment.id }}" tabindex="-1" aria-labelledby="noteModalLabel{{ appointment.id }}" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="noteModalLabel{{ appointment.id }}">Appointment Note</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p>{{ appointment.note | default("No specific note provided.", true) }}</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="appointment-actions">
+                                <a href="#" class="btn btn-sm btn-primary view-note-btn"
+                                   style="background-color: #7B68EE; border: none;"
+                                   data-bs-toggle="modal" data-bs-target="#noteModal" data-note="{{ appointment.note }}">
+                                    View Note
+                                </a>
+
+                                {% if appointment.status == 'Pending' or appointment.status == 'Accepted' %}
+                                <a href="#" class="btn btn-sm btn-light cancel-btn mt-2 mt-md-0"
+                                   style="color: #4b0082; border: 1px solid #4b0082;">
+                                    Cancel
+                                </a>
+                                {% endif %}
                             </div>
-                        {% endfor %}
+                        </div>
                     {% else %}
                         <div class="alert alert-info text-center" role="alert">
-                            You have no upcoming appointments booked.
-                            <a href="{{ url_for('request_appointment') }}" class="alert-link fw-bold">Book your first one now!</a>
+                            You have no scheduled appointments at this time.
                         </div>
-                    {% endif %}
-                    
-                </div>
+                    {% endfor %}
+
+                    <div class="modal fade" id="noteModal" tabindex="-1" aria-labelledby="noteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="noteModalLabel">Appointment Note</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p id="appointmentNoteContent"></p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- 1. View Note Modal Logic ---
+        var noteModal = document.getElementById('noteModal');
+        noteModal.addEventListener('show.bs.modal', function (event) {
+            // Button that triggered the modal
+            var button = event.relatedTarget;
+            // Extract info from data-note attributes
+            var note = button.getAttribute('data-note');
+
+            // Update the modal's content.
+            var modalNoteContent = noteModal.querySelector('#appointmentNoteContent');
+            modalNoteContent.textContent = note || "No specific note was provided for this appointment.";
+        });
+
+        // --- 2. Cancel Button AJAX Logic (New) ---
+        document.querySelectorAll('.cancel-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Find the closest parent div with the appointment ID
+                const appointmentDiv = button.closest('[data-appointment-id]');
+                const appointmentId = appointmentDiv ? appointmentDiv.getAttribute('data-appointment-id') : null;
+
+                if (!appointmentId) {
+                    console.error("Error: Could not find appointment ID.");
+                    alert("Error: Could not find appointment ID for cancellation.");
+                    return;
+                }
+
+                if (confirm('Are you sure you want to cancel this appointment? This action cannot be undone.')) {
+                    fetch(`/cancel_appointment/${appointmentId}`, {
+                        method: 'POST',
+                        // Note: If you use CSRF tokens (recommended), you must include them here
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Reload the page to show the flash message and updated status (now 'Cancelled')
+                            window.location.reload();
+                        } else {
+                            alert('Cancellation failed: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An unexpected error occurred during cancellation.');
+                    });
+                }
+            });
+        });
+    });
+</script>
+
 {% endblock %}

@@ -9,6 +9,16 @@
         <div class="row justify-content-center">
             <div class="col-lg-7">
 
+                {# --- START BACK BUTTON/LINK FIX (Outside White Box, Styled Like View Appointments) --- #}
+                <div class="mb-3">
+                    <a href="{{ url_for('community_dashboard') }}"
+                       class="text-decoration-none fw-bold"
+                       style="color: #6A5ACD;">
+                        &larr; Back to Dashboard
+                    </a>
+                </div>
+                {# --- END BACK BUTTON/LINK FIX --- #}
+
                 <div class="appointment-card p-4 p-md-5 border rounded shadow-lg"
                      style="background-color: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
 
@@ -22,9 +32,9 @@
                             <select id="location_select" name="location" class="form-select form-select-lg" required
                                     style="border: 1px solid #ddd; border-radius: 8px;">
                                 <option value="" disabled selected>Choose a clinic location</option>
-                                <option value="NY">New York, NY</option>
-                                <option value="LA">Los Angeles, CA</option>
-                                <option value="TX">Austin, TX</option>
+                                <option value="MC">Makati City, MC</option>
+                                <option value="Manda">Mandaluyong, Manda</option>
+                                <option value="TC">Taguig City, TC</option>
                             </select>
                         </div>
 

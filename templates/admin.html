@@ -2,14 +2,17 @@
 {% block content %}
 <div class="admin-container">
 
-    {# --- FIX 1: Move Logout to the top right --- #}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Admin Dashboard</h2>
-        <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">
+    {# --- FIX 1: Move Logout to the top right & Center Dashboard Title --- #}
+    <div class="d-flex justify-content-end align-items-center mb-3">
+        {# The button with btn-sm is already small #}
+        <a href="{{ url_for('logout') }}" class="btn btn-danger **btn-sm**">
              Logout Admin
         </a>
     </div>
-    <p>Manage registered users for MindEase</p>
+
+    {# NEW: Center the Admin Dashboard text in its own row/div #}
+    <h2 class="**text-center**">Admin Dashboard</h2>
+    <p class="**text-center**">Manage registered users for MindEase</p>
     <hr>
     {# --- END FIX 1 --- #}
 
@@ -23,7 +26,7 @@
 
     <h3 class="mt-5">Therapist Management</h3>
 
-    {# --- FIX 2: Center the Add New Therapist Button --- #}
+    {# --- FIX 2: Center the Add New Therapist Button (Already Correct) --- #}
     <div class="mb-4 text-center">
         <h4>Registered Therapists ({{ therapists|length }})</h4>
         <a href="{{ url_for('admin_add_therapist') }}" class="btn btn-success" style="width: 50%;">+ Add New Therapist</a>

@@ -1672,3 +1672,41 @@ button:hover, .cta-btn:hover, .assessment-btn:hover {
     background-color: #dc3545 !important; /* Standard red */
     border-color: #dc3545 !important;
 }
+/* REQUIRED FIX: This block was missing from your main stylesheet.
+    It creates the centered, white, semi-transparent box for the Therapist Dashboard.
+*/
+.therapist-dashboard-container {
+    width: 95%;
+    max-width: 1000px;
+    /* !important rules ensure this style overrides any conflicting base styles */
+    margin: 60px auto !important;
+    padding: 40px !important;
+    /* HIGHER OPACITY WHITE BACKGROUND */
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+    /* FORCE TEXT COLOR TO DARK on the container itself */
+    color: #333 !important;
+}
+
+/* Ensure ALL nested text elements are dark for readability inside the container */
+div.therapist-dashboard-container h1,
+div.therapist-dashboard-container h2,
+div.therapist-dashboard-container h3,
+div.therapist-dashboard-container p,
+div.therapist-dashboard-container a,
+div.therapist-dashboard-container span {
+    color: #333 !important;
+}
+
+/* Ensure table text is visible */
+div.therapist-dashboard-container .data-table th,
+div.therapist-dashboard-container .data-table td {
+    color: #333 !important;
+}
+
+/* Fix for the flash message box text color */
+.therapist-dashboard-container .alert-success,
+.therapist-dashboard-container .alert-warning {
+    color: #000 !important;
+}

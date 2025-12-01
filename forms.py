@@ -25,12 +25,11 @@ class RegisterForm(FlaskForm):
     # Field 2: Location (using a SelectField for the dropdown)
     location = SelectField('Patient Location',
                            choices=[
-                               ('', 'Select State'),  # Empty initial choice
-                               ('NY', 'New York'),
-                               ('CA', 'California'),
-                               ('TX', 'Texas'),
-                               ('FL', 'Florida'),
-                               # Add more states here as needed
+                               ('', 'Select City'),  # Empty initial choice
+                               ('MC', 'Makati City'),
+                               ('Manda', 'Mandaluyong'),
+                               ('TC', 'Taguig City'),
+
                            ],
                            validators=[DataRequired(message="Location is required.")])
 
@@ -74,7 +73,7 @@ class AccountForm(FlaskForm):
                                DataRequired(message="Username is required."),
                                Length(min=3, max=50)
                            ],
-                           render_kw={"placeholder": "e.g., MindfulUser123"
+                           render_kw={"placeholder": "e.g., MindeaseUser123"
                                       })
     age = IntegerField('Your Age',
                        validators=[
@@ -148,16 +147,22 @@ class PasswordChangeForm(FlaskForm):
     new_password = PasswordField(
         'New Password',
         validators=[
-            DataRequired(message='Password is required.'),
-            Length(min=10, message='Password must be at least 10 characters long.'),
-            EqualTo('confirm_password', message='New password and confirmation must match.')
+            DataRequired(message='New password is required.'),
+            Length(min=10, message='Password must be at least 10 characters long.')
         ]
     )
 
-    confirm_password = PasswordField('Confirm New Password')
+    # *** FIX: Renamed and added DataRequired validator ***
+    confirm_new_password = PasswordField(
+        'Confirm New Password',
+        validators=[
+            DataRequired(message='Please confirm your new password.'),
+            # *** FIX: Use EqualTo referencing 'new_password' ***
+            EqualTo('new_password', message='New password and confirmation must match.')
+        ]
+    )
 
     submit_password = SubmitField('Change Password')
-
 # forms.py (Add this new form)
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField

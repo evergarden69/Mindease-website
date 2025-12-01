@@ -7,13 +7,31 @@
 
     <div class="main-content-area">
 
+        {# --- START NOTIFICATION DISPLAY BLOCK (NEW) --- #}
+        {% if client_notifications %}
+            <div class="mb-4">
+                {% for note in client_notifications %}
+                <div class="alert alert-{{ note.category }} alert-dismissible fade show" role="alert">
+                    <strong class="me-2">New Update:</strong> {{ note.message | safe }}
+                    {# The button redirects to mark_notification_read, which updates the DB and redirects back #}
+                    <a href="{{ url_for('mark_notification_read', notification_id=note.id) }}"
+                       class="btn-close"
+                       data-bs-dismiss="alert"
+                       aria-label="Close"
+                       title="Dismiss and mark as read"></a>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {# --- END NOTIFICATION DISPLAY BLOCK --- #}
+
         {# --- USER ACTION BOX (Header) --- #}
         <div class="user-action-box mb-4 p-3 shadow-sm rounded">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div style="display: flex; align-items: center;">
                     {% if user %}
-                        {# Display User Avatar and Username #}
-                        <img src="{{ url_for('static', filename=user.avatar.replace('/static/', '')) }}"
+                        {# FIX: Ensure avatar path is correct. It should use the full path stored in the database. #}
+                        <img src="{{ user.avatar }}"
                              alt="{{ user.username }} avatar"
                              class="user-dashboard-avatar me-3"
                              style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #5d5dff; margin-right: 15px;">
@@ -24,7 +42,7 @@
                     {% endif %}
                 </div>
 
-                {# Settings and Logout Links (FIX: Spacing added via d-flex gap-2, addressing the red circle area) #}
+                {# Settings and Logout Links #}
                 <div class="d-flex gap-2">
                     <a href="{{ url_for('profile_settings') }}" class="btn btn-sm btn-outline-secondary">
                         <i class="bi bi-gear-fill"></i> Settings
@@ -47,10 +65,31 @@
                     <option>Most replies</option>
                 </select>
 
-                {# --- NEW: APPOINTMENT BUTTON (Addressing the blue circle area) --- #}
-                <a href="{{ url_for('request_appointment') }}" class="btn btn-secondary start-discussion-btn" style="background-color: #e0e0e0; color: #5d5dff; border: 1px solid #5d5dff;">
-                    Appointment
-                </a>
+                {# --- START: APPOINTMENT DROPDOWN BUTTON (Replaces single Appointment button) --- #}
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle start-discussion-btn"
+                            type="button"
+                            id="appointmentDropdown"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            style="background-color: #e0e0e0; color: #5d5dff; border: 1px solid #5d5dff;">
+                        Appointments
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="appointmentDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('request_appointment') }}">
+                                <i class="bi bi-calendar-plus me-2"></i> Request New
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('my_appointments') }}">
+                                <i class="bi bi-calendar-check me-2"></i> View My Appointments
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                {# --- END: APPOINTMENT DROPDOWN BUTTON --- #}
+
 
                 {# Link 'Start a Discussion' #}
                 <a href="{{ url_for('create_discussion') }}" class="btn btn-primary start-discussion-btn">Start a Discussion</a>
@@ -96,11 +135,11 @@
         <div class="category-box">
             <h3>Categories</h3>
             <ul class="category-list">
-                {# NOTE: These should ideally call view_category, e.g., url_for('view_category', category_name='Introduce yourself') #}
-                <li><a href="#">Introduce yourself</a></li>
-                <li><a href="#">Mental health conditions</a></li>
-                <li><a href="#">Caring for myself and others</a></li>
-                <li><a href="#">People like me</a></li>
+                {# FIX: Update category links to use url_for #}
+                <li><a href="{{ url_for('view_category', category_name='Introduce yourself') }}">Introduce yourself</a></li>
+                <li><a href="{{ url_for('view_category', category_name='Mental health conditions') }}">Mental health conditions</a></li>
+                <li><a href="{{ url_for('view_category', category_name='Caring for myself and others') }}">Caring for myself and others</a></li>
+                <li><a href="{{ url_for('view_category', category_name='People like me') }}">People like me</a></li>
                 </ul>
         </div>
 
@@ -110,7 +149,7 @@
             </div>
             <h3>Forums guidelines</h3>
             <p>Our guidelines keep the Forums a safe place for people to share and learn information.</p>
-            {# FIX: Ensures the link points correctly to the guidelines route #}
+            {# Ensures the link points correctly to the guidelines route #}
             <a href="{{ url_for('guidelines') }}" style="color: #5d5dff; font-weight: bold;">View the guidelines</a>
         </div>
     </div>

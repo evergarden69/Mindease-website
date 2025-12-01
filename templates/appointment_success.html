@@ -14,21 +14,23 @@
                     
                     <i class="fas fa-check-circle fa-5x mb-4" style="color: #4CAF50;"></i>
                     
-                    <h2 class="mb-3" style="color: #4b0082; font-weight: 600;">Success! Your Appointment is Confirmed.</h2>
-                    
+                    <h2 class="mb-3" style="color: #4b0082; font-weight: 600;">Success! Appointment Requested.</h2>
+
                     <p class="lead mb-4 text-muted">
-                        We have successfully booked your virtual session. You will receive an email confirmation shortly.
+                        We have successfully **requested** your session. The provider will review it shortly. You will receive an email confirmation when it's approved.
                     </p>
-                    
-                    <div class="summary-details mb-5 p-3 rounded" style="background-color: #f0fff0;">
-                        <p class="mb-1"><strong>Date:</strong> Friday, November 28, 2025</p>
-                        <p class="mb-1"><strong>Time:</strong> 2:00 PM EST</p>
-                        <p class="mb-1"><strong>Location:</strong> Mindful Care - FL, Virtual 2</p>
+
+                    <div class="summary-details mb-5 p-3 rounded text-start" style="background-color: #f0fff0; border: 1px solid #e0ffe0;">
+                        <h5 class="fw-bold mb-3" style="color: #4CAF50;">Details:</h5>
+
+                        <p class="mb-1"><strong>Provider:</strong> {{ booking_details.therapist }}</p> <p class="mb-1"><strong>Service:</strong> {{ booking_details.service_type|capitalize }}</p>
+                        <p class="mb-1"><strong>Date:</strong> {{ booking_details.date }}</p>
+                        <p class="mb-1"><strong>Time:</strong> {{ booking_details.time }}</p>
+                        <p class="mb-1"><strong>Location:</strong> {{ booking_details.location }}</p>
                     </div>
 
-                    <a href="{{ url_for('community_dashboard') }}" class="btn appointment-btn-confirm" 
-                       style="background: linear-gradient(to right, #6A5ACD, #4169E1); color: white; border: none; border-radius: 25px; padding: 12px 30px; font-weight: bold; font-size: 1.1rem; text-decoration: none;">
-                        Back to Dashboard
+                    <a href="{{ url_for('community_dashboard') }}" class="btn appointment-btn-confirm" style="background: linear-gradient(to right, #6A5ACD, #4169E1); color: white; border: none; border-radius: 25px; padding: 12px 30px; font-weight: bold; font-size: 1.1rem; text-decoration: none;">
+                        Go to My Dashboard
                     </a>
 
                 </div>
@@ -36,4 +38,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}

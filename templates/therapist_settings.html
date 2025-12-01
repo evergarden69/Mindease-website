@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="dashboard-container my-5 p-4 p-md-5 mx-auto" style="max-width: 600px;">
+
+    <h2 class="text-center mb-4">⚙️ Account Settings for {{ user.username }}</h2>
+
+    <p class="text-muted text-center mb-5">Manage your security by changing your password.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <hr>
+
+    {# --- PASSWORD CHANGE FORM --- #}
+    <h3 class="mb-4 mt-4">Change Password</h3>
+    
+    <form method="POST" action="{{ url_for('therapist_settings') }}">
+        {# This ensures the form is validated against the CSRF token #}
+        {{ password_form.hidden_tag() }} 
+
+        <div class="mb-3">
+            {{ password_form.current_password.label(class="form-label") }}
+            {{ password_form.current_password(class="form-control", placeholder="Enter your current password") }}
+            {% for error in password_form.current_password.errors %}
+                <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-3">
+            {{ password_form.new_password.label(class="form-label") }}
+            {{ password_form.new_password(class="form-control", placeholder="Enter a new password") }}
+            {% for error in password_form.new_password.errors %}
+                <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-4">
+            {{ password_form.confirm_new_password.label(class="form-label") }}
+            {{ password_form.confirm_new_password(class="form-control", placeholder="Confirm your new password") }}
+            {% for error in password_form.confirm_new_password.errors %}
+                <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        {# The submit button name should match the submit_password.data check in app.py if using multiple forms on one page #}
+        {{ password_form.submit_password(class="btn btn-primary w-100", value="Update Password") }}
+    </form>
+    
+    <div class="text-center mt-3">
+        <a href="{{ url_for('therapist_dashboard') }}" class="btn btn-link">Back to Dashboard</a>
+    </div>
+
+</div>
+
+{% endblock %}
